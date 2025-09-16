@@ -11,3 +11,4 @@ wheels/
 dataset/
 */dist
 .idea
+.env

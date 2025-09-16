@@ -125,7 +125,7 @@ class FaceExtractor(Extractor):
             "embeddings": res[0 : len(embedding_models)],
             "analysis": res[len(embedding_models) :],
             "detector": face_detector,
-            "file_ref": path,
+            "blob_name": path.split("/")[-1],
             "meta": meta,
         }
         results = self.clean_extractions(results)
@@ -137,7 +137,7 @@ class FaceExtractor(Extractor):
         face_threshold: float = 0.9,
         iou_threshold: float = 0.95,
     ) -> dict:
-        file_ref = extractions["file_ref"]
+        blob_name = extractions["blob_name"]
         detector = extractions["detector"]
         meta = extractions["meta"]
         analysis = extractions["analysis"][0]
@@ -169,21 +169,21 @@ class FaceExtractor(Extractor):
                 ),
             )
         )
-        # final_data = {}
         final_data = list()
         for index in filtered_indexes:
             if index:
                 d = embedding_data[index[0]] | analysis_data[index[1]]
                 del d["region"]
                 d["detector"] = detector
-                d["file_ref"] = file_ref
+                d["blob_name"] = blob_name
                 d["meta"] = meta
-                # embedding_model = d["embedding_model"]
-                # if embedding_model not in final_data.keys():
-                #     final_data[embedding_model] = []
-                # final_data[embedding_model].append(d)
                 final_data.append(d)
-        return {"extractions": final_data}
+        return {
+            "extractions": final_data,
+            "image_metadata": {
+                "num_faces": len(analysis_data),
+            },
+        }
 
     @staticmethod
     def __clean_analysis_data(analysis, face_threshold):

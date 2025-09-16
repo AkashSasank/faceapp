@@ -1,17 +1,21 @@
 import asyncio
 import datetime
 
-from faceapp.utils.manager import PipelineManager
+from faceapp.manager import PipelineManager
 from faceapp.utils.pipelines import (
     LocalImageExtractionPipeline,
     LocalImageIndexingPipeline,
 )
 
+from dotenv import load_dotenv
+load_dotenv(".env")
+
+
 features = ["age", "gender", "race", "emotion"]
 
 
 models = [
-    "Facenet",
+    # "Facenet",
     "Facenet512",
 ]
 extraction_pipeline = LocalImageExtractionPipeline()

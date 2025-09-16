@@ -10,7 +10,12 @@ class Pipeline(Process):
 
     async def ainvoke(self, *args, **kwargs) -> [dict, AsyncGenerator[dict, None]]:
         output = {}
+        updated_kwargs = kwargs | output
         for process_name, process in self.processes.items():
-            updated_kwargs = kwargs | output
+            print("#" * 100)
+            print("Process name:", process_name)
+            print("Process input items:", list(updated_kwargs.keys()))
             output = await process.ainvoke(*args, **updated_kwargs)
+            print("Process output items:", list(output.keys()))
+            updated_kwargs = updated_kwargs | output
         return output

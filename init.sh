@@ -1,4 +1,4 @@
 #!/bin/zsh
 
 pip install -e faceapp/
-docker compose up --build -d
+#docker compose up --build -d

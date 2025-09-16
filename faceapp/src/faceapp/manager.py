@@ -49,7 +49,8 @@ class PipelineManager:
             if item is None:
                 break
 
-            await self.consumer_pipeline.ainvoke(**item, **config)
+            output = await self.consumer_pipeline.ainvoke(**item, **config)
+            print(output)
         self.queue.task_done()
 
     @staticmethod

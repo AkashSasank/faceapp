@@ -4,10 +4,12 @@ from typing import AsyncGenerator
 from faceapp._base.pipeline import Pipeline
 from faceapp.utils.extractor import FaceExtractor
 from faceapp.utils.fetcher import LocalImageFetcher
-from faceapp.utils.metadata import LocalImageExtractionFormatter
-from faceapp.utils.vector_index import ElasticVectorStore
+from faceapp.utils.metadata import (
+    LocalImageExtractionFormatter,
+    ImageMetadataAggregator,
+)
+from faceapp.utils.vector_index.azure_aisearch import AzureAISearchVectorStore
 from faceapp.utils.cleanup import FileCleanup
-
 
 class LocalImageExtractionPipeline(Pipeline):
 
@@ -51,10 +53,18 @@ class LocalImageIndexingPipeline(Pipeline):
     def __init__(self):
         processes = {
             "formatter": LocalImageExtractionFormatter(),
-            "vector_index": ElasticVectorStore(),
-            "cleanup": FileCleanup(),
+            "vector_index": AzureAISearchVectorStore(
+                service_name=os.getenv("AZURE_AI_SEARCH_SERVICE_NAME"),
+                api_key=os.getenv("AZURE_AI_SEARCH_API_KEY"),
+            ),
+            # "image_metadata_generator": ImageMetadataAggregator(),
+            # "cleanup": FileCleanup(),
         }
         super(LocalImageIndexingPipeline, self).__init__(processes)
 
-    async def ainvoke(self, extractions: list, output_path: str):
-        return await super().ainvoke(extractions=extractions, output_path=output_path)
+    async def ainvoke(self, extractions: list, output_path: str, image_metadata: dict):
+        return await super().ainvoke(
+            extractions=extractions,
+            output_path=output_path,
+            image_metadata=image_metadata,
+        )

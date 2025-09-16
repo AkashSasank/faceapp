@@ -1,11 +1,17 @@
 import asyncio
 import datetime
+import enum
 from typing import Any, Dict, List, Optional
 
 import ulid
 from elasticsearch import Elasticsearch
 
 from faceapp._base.indexer import Indexer
+
+
+class SearchType(enum.Enum):
+    COSINE = 1
+    ANN = 2
 
 
 class ElasticVectorStore(Indexer):
@@ -55,9 +61,7 @@ class ElasticVectorStore(Indexer):
         self.es.update(index=index_name, id=self.META_ID, script=script)
 
     async def load(self, extractions: list, *args, **kwargs) -> dict:
-
         tasks = [self.__insert(**extraction) for extraction in extractions]
-
         docs = await asyncio.gather(*tasks)
         return {"documents": docs, "input_path": extractions[0].get("content")}
 
@@ -84,10 +88,7 @@ class ElasticVectorStore(Indexer):
         self.es.index(index=index_name, id=doc_id, document=body)
         self.es.indices.refresh(index=index_name)
         self._update_index_metadata(index_name=index_name)
-        return {
-            "document_id": doc_id,
-            "index": index_name,
-        }
+        return {"document_id": doc_id, "index": index_name}
 
     def search_ann(
         self,
@@ -97,10 +98,8 @@ class ElasticVectorStore(Indexer):
         num_candidates: int = 10,
         filters: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
-        """
-        ANN vector search (fast, approximate).
-        """
-        query_body: Dict[str, Any] = {
+
+        query_body = {
             "knn": {
                 "field": "embedding",
                 "query_vector": query_embedding,
@@ -129,10 +128,6 @@ class ElasticVectorStore(Indexer):
         k: int = 5,
         filters: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
-        """
-        Exact cosine similarity search using script_score.
-        Slower than ANN but precise.
-        """
         query: Dict[str, Any] = {"match_all": {}}
         if filters:
             query = {
@@ -143,10 +138,9 @@ class ElasticVectorStore(Indexer):
                 }
             }
 
-        res = self.es.search(
-            index=index_name,
-            size=k,
-            query={
+        body = {
+            "size": k,
+            "query": {
                 "script_score": {
                     "query": query,
                     "script": {
@@ -155,9 +149,53 @@ class ElasticVectorStore(Indexer):
                     },
                 }
             },
-            _source=["content", "metadata", "created_at", "updated_at"],
-        )
+            "_source": ["content", "metadata", "created_at", "updated_at"],
+        }
+
+        res = self.es.search(index=index_name, body=body)
         return self._format_results(res)
+
+    def search(
+        self,
+        index_name: str,
+        query_embedding: List[float],
+        search_type: SearchType = SearchType.ANN,
+        k: Optional[int] = None,
+        num_candidates: int = 10,
+        filters: Optional[Dict[str, Any]] = None,
+        threshold: Optional[float] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Unified search.
+        - If k is None, fetch a large number (default 10k).
+        - Threshold: filter results by similarity.
+        """
+        fetch_k = k or 10_000
+
+        if search_type == SearchType.ANN:
+            results = self.search_ann(
+                index_name=index_name,
+                query_embedding=query_embedding,
+                k=fetch_k,
+                num_candidates=num_candidates,
+                filters=filters,
+            )
+        elif search_type == SearchType.COSINE:
+            results = self.search_cosine(
+                index_name=index_name,
+                query_embedding=query_embedding,
+                k=fetch_k,
+                filters=filters,
+            )
+        else:
+            raise ValueError(f"Unsupported search_type: {search_type}")
+
+        # Apply threshold filtering
+        if threshold is not None:
+            min_score = 1.0 + threshold  # ES cosineSimilarity shifted by +1
+            results = [r for r in results if r["score"] >= min_score]
+
+        return results[:k] if k else results
 
     @staticmethod
     def _format_results(res):

@@ -1,0 +1,156 @@
+import enum
+import os
+from typing import Any, Dict, List, Optional
+
+import ulid
+from azure.search.documents import SearchClient
+from azure.search.documents._generated.models import VectorizedQuery
+from azure.search.documents.indexes import SearchIndexClient
+from azure.search.documents.indexes.models import (
+    SearchIndex,
+    SearchField,
+    SearchFieldDataType,
+    SimpleField,
+    SearchableField,
+    VectorSearch,
+    HnswAlgorithmConfiguration,
+    VectorSearchProfile,
+)
+from azure.core.paging import ItemPaged
+from azure.core.credentials import AzureKeyCredential
+
+from faceapp._base.indexer import Indexer
+
+
+class SearchType(enum.Enum):
+    COSINE = 1
+    ANN = 2  # Both use cosine in Azure, ANN is default
+
+
+class AzureAISearchVectorStore(Indexer):
+    META_ID = "__meta__"
+
+    def __init__(
+        self,
+        service_name: str = os.environ.get("AZURE_AI_SEARCH_SERVICE_NAME"),
+        api_key: str = os.environ.get("AZURE_AI_SEARCH_API_KEY"),
+    ):
+        self.endpoint = f"https://{service_name}.search.windows.net"
+        self.credential = AzureKeyCredential(api_key)
+
+        self.index_client = SearchIndexClient(
+            endpoint=self.endpoint, credential=self.credential
+        )
+
+        self.search_clients = {}
+
+    def _create_index(self, index_name: str, dim: int):
+        if index_name in [i.name for i in self.index_client.list_indexes()]:
+            return
+
+        vector_search = VectorSearch(
+            algorithms=[
+                HnswAlgorithmConfiguration(
+                    name="hnsw-1",
+                ),
+            ],
+            profiles=[
+                VectorSearchProfile(
+                    name="vector-profile-hnsw-scalar",
+                    algorithm_configuration_name="hnsw-1",
+                )
+            ],
+        )
+        fields = [
+            SearchField(name="id", type=SearchFieldDataType.String, key=True),
+            SearchField(
+                name="embedding",
+                type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                searchable=True,
+                vector_search_dimensions=dim,  # Replace with your embedding model's dimensions
+                vector_search_profile_name="vector-profile-hnsw-scalar",
+            ),
+            SimpleField(name="blob_name", type=SearchFieldDataType.String),
+        ]
+
+        # Create the SearchIndex object
+        index = SearchIndex(
+            name=index_name,
+            fields=fields,
+            vector_search=vector_search,
+        )
+
+        self.index_client.create_index(index)
+        print("Creating index: ", index_name)
+        self.create_search_client(index_name)
+
+    def create_search_client(self, index_name):
+        search_client = SearchClient(
+            endpoint=self.endpoint, index_name=index_name, credential=self.credential
+        )
+        self.search_clients[index_name] = search_client
+        return search_client
+
+    async def load(self, extractions: list, *args, **kwargs) -> dict:
+        docs = list(map(lambda x: self.__insert(**x), extractions))
+        return {"documents": docs, "file_name": extractions[0].get("blob_name")}
+
+    def __insert(
+        self,
+        index_name: str,
+        embedding: List[float],
+        doc_id: Optional[str] = None,
+        blob_name: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ) -> dict:
+        doc_id = doc_id or str(ulid.ulid())
+        # now = datetime.datetime.now().isoformat()
+
+        doc = {
+            "id": doc_id,
+            "embedding": embedding,
+            "blob_name": blob_name,
+        }
+        # Create index and search client
+        self._create_index(index_name, len(embedding))
+        if not self.search_clients.get(index_name):
+            self.create_search_client(index_name)
+
+        self.search_clients[index_name].upload_documents(documents=[doc])
+        return {"document_id": doc_id, "index": index_name}
+
+    def search(
+        self,
+        index_name: str,
+        query_embedding: List[float],
+        search_type: SearchType = SearchType.COSINE,
+        k: Optional[int] = None,
+        filters: Optional[str] = None,
+        threshold: Optional[float] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Unified search (cosine).
+        - k: top results (default 50 if None).
+        - filters: OData filter string, e.g. "metadata eq 'person'".
+        - threshold: cosine similarity threshold.
+        """
+        fetch_k = k or 50
+        search_client = self.create_search_client(index_name)
+        vector_query = VectorizedQuery(
+            vector=query_embedding,
+            k_nearest_neighbors=fetch_k,  # Example: retrieve 5 nearest neighbors
+            fields="embedding",
+        )
+        results = search_client.search(
+            vector_queries=[vector_query],
+            select=["blob_name", "id"],
+            include_total_count=True,
+        )
+        formatted = []
+        for r in results:
+            if threshold is not None and r["@search.score"] < threshold:
+                continue
+            print(r["@search.score"])
+            formatted.append(r)
+
+        return formatted

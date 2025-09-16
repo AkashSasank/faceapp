@@ -10,3 +10,4 @@ class FileCleanup(Process):
             os.makedirs(output_path)
         if os.path.exists(input_path):
             shutil.move(input_path, output_path)
+        return {"cleanup_status": True}

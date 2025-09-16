@@ -11,3 +11,6 @@ class Indexer(Process):
 
     async def ainvoke(self, *args, **kwargs) -> dict:
         return await self.load(*args, **kwargs)
+
+    def search(self, *args, **kwargs) -> [list, dict]:
+        return NotImplemented
