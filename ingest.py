@@ -1,13 +1,13 @@
 import asyncio
 import datetime
 
-from faceapp.utils.pipelines import (
-    LocalImageExtractionPipeline,
-    AiSearchIndexingPipeline,
-)
-from faceapp.utils.builders import PipelineBuilder
-
 from dotenv import load_dotenv
+
+from faceapp.utils.builders import PipelineBuilder
+from faceapp.utils.pipelines import (
+    AiSearchIndexingPipeline,
+    LocalImageExtractionPipeline,
+)
 
 load_dotenv(".env")
 

@@ -1,31 +1,24 @@
+import asyncio
 import enum
 import os
-import asyncio
 from typing import Any, Dict, List, Optional
 
 import ulid
+from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.search.documents._generated.models import VectorizedQuery
 from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    SearchIndex,
+    HnswAlgorithmConfiguration,
     SearchField,
     SearchFieldDataType,
+    SearchIndex,
     SimpleField,
-    SearchableField,
     VectorSearch,
-    HnswAlgorithmConfiguration,
     VectorSearchProfile,
 )
-from azure.core.paging import ItemPaged
-from azure.core.credentials import AzureKeyCredential
 
 from faceapp._base.indexer import Indexer
-
-
-class SearchType(enum.Enum):
-    COSINE = 1
-    ANN = 2  # Both use cosine in Azure, ANN is default
 
 
 class AzureAISearchVectorStore(Indexer):
@@ -121,11 +114,10 @@ class AzureAISearchVectorStore(Indexer):
         self.search_clients[index_name].upload_documents(documents=[doc])
         return {"document_id": doc_id, "index": index_name}
 
-    def search(
+    async def search(
         self,
         index_name: str,
         query_embedding: List[float],
-        search_type: SearchType = SearchType.COSINE,
         k: Optional[int] = None,
         filters: Optional[str] = None,
         threshold: Optional[float] = None,
@@ -148,11 +140,5 @@ class AzureAISearchVectorStore(Indexer):
             select=["blob_name", "id"],
             include_total_count=True,
         )
-        formatted = []
-        for r in results:
-            if threshold is not None and r["@search.score"] < threshold:
-                continue
-            print(r["@search.score"])
-            formatted.append(r)
-
+        formatted = list(filter(lambda i: i["@search.score"] > threshold, results))
         return formatted

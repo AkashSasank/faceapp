@@ -1,5 +1,5 @@
-from faceapp._base.pipeline import Pipeline
 from faceapp._base.base import Process
+from faceapp._base.pipeline import Pipeline
 
 
 class PipelineBuilder:

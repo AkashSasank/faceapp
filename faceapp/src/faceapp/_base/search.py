@@ -1,4 +1,5 @@
 from typing import Protocol
+
 from faceapp._base.indexer import Indexer
 
 

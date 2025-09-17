@@ -1,7 +1,7 @@
 import os
 
 from faceapp._base.fetcher import Fetcher
-from faceapp.utils.storage import S3Utils
+from faceapp.utils.storage import s3
 
 
 class LocalImageFetcher(Fetcher):
@@ -17,15 +17,10 @@ class LocalImageFetcher(Fetcher):
 
 
 class S3ImageFetcher(Fetcher):
-    s3 = S3Utils(
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        region_name=os.getenv("AWS_REGION"),
-    )
 
     async def fetch(
         self, bucket_name: str, blob_name: str, download_dir: str, *args, **kwargs
     ):
-        file_path = self.s3.download_file(bucket_name, blob_name, download_dir)
+        file_path = s3.download_file(bucket_name, blob_name, download_dir)
         assert os.path.exists(file_path)
         return {"path": file_path, "meta": {}}

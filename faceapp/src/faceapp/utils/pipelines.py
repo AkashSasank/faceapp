@@ -3,10 +3,8 @@ from typing import AsyncGenerator
 
 from faceapp._base.pipeline import Pipeline
 from faceapp.utils.processes.extractor import FaceExtractor
-from faceapp.utils.processes.fetcher import LocalImageFetcher
-from faceapp.utils.processes.metadata import (
-    ExtractionFormatter,
-)
+from faceapp.utils.processes.fetcher import LocalImageFetcher, S3ImageFetcher
+from faceapp.utils.processes.metadata import ExtractionFormatter
 from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
 
 
@@ -89,3 +87,11 @@ class AiSearchIndexingPipeline(Pipeline):
         return await super().ainvoke(
             extractions=extractions, image_metadata=image_metadata, **kwargs
         )
+
+class S3ImageExtractorPipeline(Pipeline):
+    def __init__(self, name: str = "S3ImageExtractorPipeline"):
+        processes = {
+            "image_fetcher": S3ImageFetcher(),
+            "extractor": FaceExtractor(),
+        }
+        super(S3ImageExtractorPipeline, self).__init__(processes, name)
