@@ -5,17 +5,19 @@ from faceapp._base.base import Process
 
 class Pipeline(Process):
 
-    def __init__(self, processes: Dict[str, Process]):
+    def __init__(self, processes: Dict[str, Process], name: str):
         self.processes = processes
+        self.name = name
 
     async def ainvoke(self, *args, **kwargs) -> [dict, AsyncGenerator[dict, None]]:
         output = {}
         updated_kwargs = kwargs | output
+        process_names = list(self.processes.keys())
+        print("Pipeline name: ", self.name)
+        print("List of sub-processes: ", process_names)
         for process_name, process in self.processes.items():
-            print("#" * 100)
-            print("Process name:", process_name)
-            print("Process input items:", list(updated_kwargs.keys()))
+            print("Current process: ", process_name.title())
             output = await process.ainvoke(*args, **updated_kwargs)
-            print("Process output items:", list(output.keys()))
             updated_kwargs = updated_kwargs | output
+            print("Process ", process_name.title(), ": Completed")
         return output

@@ -2,23 +2,49 @@ import os
 from typing import AsyncGenerator
 
 from faceapp._base.pipeline import Pipeline
-from faceapp.utils.extractor import FaceExtractor
-from faceapp.utils.fetcher import LocalImageFetcher
-from faceapp.utils.metadata import (
-    LocalImageExtractionFormatter,
-    ImageMetadataAggregator,
+from faceapp.utils.processes.extractor import FaceExtractor
+from faceapp.utils.processes.fetcher import LocalImageFetcher
+from faceapp.utils.processes.metadata import (
+    ExtractionFormatter,
 )
-from faceapp.utils.vector_index.azure_aisearch import AzureAISearchVectorStore
-from faceapp.utils.cleanup import FileCleanup
+from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
+
 
 class LocalImageExtractionPipeline(Pipeline):
+    """
+    Extracts faces from a single image
+    """
 
-    def __init__(self):
+    def __init__(self, name: str = "LocalImageExtractionPipeline"):
         processes = {
             "image_fetcher": LocalImageFetcher(),
             "face_extraction": FaceExtractor(),
         }
-        super(LocalImageExtractionPipeline, self).__init__(processes)
+        super(LocalImageExtractionPipeline, self).__init__(processes, name)
+
+    async def ainvoke(self, path: str, embedding_models: list, features: list) -> dict:
+        return await self.__call_pipeline(
+            path=path, embedding_models=embedding_models, features=features
+        )
+
+    async def __call_pipeline(
+        self, path: str, embedding_models: list, features: list
+    ) -> dict:
+        extension = path.split(".")[-1].lower()
+        if extension in ["jpg", "jpeg", "png"]:
+            data = await super().ainvoke(
+                path=path,
+                embedding_models=embedding_models,
+                features=features,
+            )
+            return data
+        return {}
+
+
+class LocalImageDirExtractionPipeline(LocalImageExtractionPipeline):
+    """
+    Extracts faces from a local dir
+    """
 
     async def ainvoke(
         self, path: str, embedding_models: list, features: list
@@ -35,36 +61,19 @@ class LocalImageExtractionPipeline(Pipeline):
                 path=path, embedding_models=embedding_models, features=features
             )
 
-    async def __call_pipeline(
-        self, path: str, embedding_models: list, features: list
-    ) -> dict:
-        extension = path.split(".")[-1].lower()
-        if extension in ["jpg", "jpeg", "png"]:
-            data = await super().ainvoke(
-                path=path,
-                embedding_models=embedding_models,
-                features=features,
-            )
-            return data
-        return {}
 
-
-class LocalImageIndexingPipeline(Pipeline):
-    def __init__(self):
+class AiSearchIndexingPipeline(Pipeline):
+    def __init__(self, name: str = "AiSearchIndexingPipeline"):
         processes = {
-            "formatter": LocalImageExtractionFormatter(),
+            "formatter": ExtractionFormatter(),
             "vector_index": AzureAISearchVectorStore(
                 service_name=os.getenv("AZURE_AI_SEARCH_SERVICE_NAME"),
                 api_key=os.getenv("AZURE_AI_SEARCH_API_KEY"),
             ),
-            # "image_metadata_generator": ImageMetadataAggregator(),
-            # "cleanup": FileCleanup(),
         }
-        super(LocalImageIndexingPipeline, self).__init__(processes)
+        super(AiSearchIndexingPipeline, self).__init__(processes, name)
 
-    async def ainvoke(self, extractions: list, output_path: str, image_metadata: dict):
+    async def ainvoke(self, extractions: list, image_metadata: dict, **kwargs):
         return await super().ainvoke(
-            extractions=extractions,
-            output_path=output_path,
-            image_metadata=image_metadata,
+            extractions=extractions, image_metadata=image_metadata, **kwargs
         )

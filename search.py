@@ -1,15 +1,16 @@
 import os
 
 from faceapp._base.indexer import Indexer
-from faceapp.utils.vector_index.azure_aisearch import AzureAISearchVectorStore
-from faceapp.utils.extractor import FaceEmbedder
+from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
+from faceapp.utils.processes.extractor import FaceEmbedder
 from dotenv import load_dotenv
 import cv2
+
 load_dotenv(".env")
 
-path = "dataset/raw/IMG_8037.jpg"
+path = "farz.png"
 db_path = "dataset/raw"
-model = "Facenet512"
+model = "VGG-Face"
 
 vector_store = AzureAISearchVectorStore(
     service_name=os.getenv("AZURE_AI_SEARCH_SERVICE_NAME"),
@@ -36,7 +37,7 @@ class FaceSearch:
             res = vector_store.search(
                 index_name=self.embedding_model.lower(),
                 query_embedding=query,
-                threshold=0.75,
+                threshold=0.8,
             )
             results.extend(res)
         return list(set(list(map(self.__get_blob_url, results))))
@@ -46,13 +47,10 @@ class FaceSearch:
         return os.path.join(self.blob_path, img_path)
 
 
-finder = FaceSearch(
-    vector_db=vector_store, embedding_model=model, blob_path=db_path
-)
+finder = FaceSearch(vector_db=vector_store, embedding_model=model, blob_path=db_path)
 results = finder.get_matches(path)
 for result in results:
     print(result)
     image = cv2.imread(result)
     cv2.imshow("Output", cv2.imread(result))
     cv2.waitKey(0)
-

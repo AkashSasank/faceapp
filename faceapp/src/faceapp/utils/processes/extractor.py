@@ -94,6 +94,8 @@ class FaceExtractor(Extractor):
         embedding_models: list,
         features: list,
         face_detector: str = "mtcnn",
+        *args,
+        **kwargs,
     ) -> dict:
         features = self.__validate_features(features)
         self.__validate_model(embedding_models)

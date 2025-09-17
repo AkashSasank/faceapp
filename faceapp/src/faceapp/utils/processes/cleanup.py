@@ -3,7 +3,7 @@ import os
 import shutil
 
 
-class FileCleanup(Process):
+class LocalFileCleanup(Process):
 
     async def ainvoke(self, input_path: str, output_path: str, *args, **kwargs) -> dict:
         if not os.path.exists(output_path):

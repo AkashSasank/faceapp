@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "azure-search-documents==11.6.0b12",
+    "boto3>=1.40.32",
     "deepface>=0.0.95",
     "tf-keras>=2.20.1",
 ]

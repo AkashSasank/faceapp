@@ -1,5 +1,6 @@
 import enum
 import os
+import asyncio
 from typing import Any, Dict, List, Optional
 
 import ulid
@@ -92,10 +93,11 @@ class AzureAISearchVectorStore(Indexer):
         return search_client
 
     async def load(self, extractions: list, *args, **kwargs) -> dict:
-        docs = list(map(lambda x: self.__insert(**x), extractions))
-        return {"documents": docs, "file_name": extractions[0].get("blob_name")}
+        tasks = [self.__insert(**x) for x in extractions]
+        docs = await asyncio.gather(*tasks)
+        return {"documents": docs, "blob_name": extractions[0].get("blob_name")}
 
-    def __insert(
+    async def __insert(
         self,
         index_name: str,
         embedding: List[float],
