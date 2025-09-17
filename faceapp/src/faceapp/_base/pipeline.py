@@ -16,8 +16,8 @@ class Pipeline(Process):
         print("Pipeline name: ", self.name)
         print("List of sub-processes: ", process_names)
         for process_name, process in self.processes.items():
-            print("Current process: ", process_name.title())
+            print("Current process: ", process_name)
             output = await process.ainvoke(*args, **updated_kwargs)
             updated_kwargs = updated_kwargs | output
-            print("Process ", process_name.title(), ": Completed")
+            print("Process ", process_name, ": Completed")
         return output

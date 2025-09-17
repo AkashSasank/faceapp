@@ -22,13 +22,19 @@ class LocalImageExtractionPipeline(Pipeline):
         }
         super(LocalImageExtractionPipeline, self).__init__(processes, name)
 
-    async def ainvoke(self, path: str, embedding_models: list, features: list) -> dict:
+    async def ainvoke(
+        self, path: str, embedding_models: list, features: list, *args, **kwargs
+    ) -> dict:
         return await self.__call_pipeline(
-            path=path, embedding_models=embedding_models, features=features
+            path=path,
+            embedding_models=embedding_models,
+            features=features,
+            *args,
+            **kwargs
         )
 
     async def __call_pipeline(
-        self, path: str, embedding_models: list, features: list
+        self, path: str, embedding_models: list, features: list, *args, **kwargs
     ) -> dict:
         extension = path.split(".")[-1].lower()
         if extension in ["jpg", "jpeg", "png"]:
@@ -36,6 +42,8 @@ class LocalImageExtractionPipeline(Pipeline):
                 path=path,
                 embedding_models=embedding_models,
                 features=features,
+                *args,
+                **kwargs
             )
             return data
         return {}
@@ -47,18 +55,22 @@ class LocalImageDirExtractionPipeline(LocalImageExtractionPipeline):
     """
 
     async def ainvoke(
-        self, path: str, embedding_models: list, features: list
+        self, path: str, embedding_models: list, features: list, *args, **kwargs
     ) -> AsyncGenerator[dict, None]:
         if os.path.isdir(path):
             for image in os.listdir(path):
                 img_path = os.path.join(path, image)
                 output = await self.__call_pipeline(
-                    img_path, embedding_models, features
+                    img_path, embedding_models, features, *args, **kwargs
                 )
                 yield output
         else:
             yield await self.__call_pipeline(
-                path=path, embedding_models=embedding_models, features=features
+                path=path,
+                embedding_models=embedding_models,
+                features=features,
+                *args,
+                **kwargs
             )
 
 
