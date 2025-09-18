@@ -60,16 +60,16 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
+          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/faceapp/face-embedder:latest
           docker build \
             --build-arg WHEEL_PATH=faceapp/dist \
             -t $IMAGE_URI \
             lambda_functions/face_embedder
           docker push $IMAGE_URI
 
-      - name: Update Lambda function
-        run: |
-          aws lambda update-function-code \
-            --function-name face-embedder \
-            --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
-
+#      - name: Update Lambda function
+#        run: |
+#          aws lambda update-function-code \
+#            --function-name face-embedder \
+#            --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/faceapp/face-embedder:latest
+#
