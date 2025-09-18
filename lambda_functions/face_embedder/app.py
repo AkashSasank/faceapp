@@ -44,6 +44,7 @@ def create_config(event):
 def handler(event, context):
     print(event, context)
     config = create_config(event)
+    print(config)
     status = asyncio.run(pipeline.ainvoke(**config))
     print(status)
     return {
