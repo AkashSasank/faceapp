@@ -67,9 +67,9 @@ jobs:
             lambda_functions/face_embedder
           docker push $IMAGE_URI
 
-#      - name: Update Lambda function
-#        run: |
-#          aws lambda update-function-code \
-#            --function-name face-embedder \
-#            --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/faceapp/face-embedder:latest
+      - name: Update Lambda function
+        run: |
+          aws lambda update-function-code \
+            --function-name face-embedder-lambda \
+            --image-uri ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/faceapp/face-embedder:latest
 #
