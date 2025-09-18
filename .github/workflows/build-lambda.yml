@@ -62,7 +62,7 @@ jobs:
         run: |
           IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/faceapp/face-embedder:latest
           docker build \
-            --build-arg WHEEL_PATH=faceapp/dist \
+            --build-arg WHEEL_PATH=../../faceapp/dist \
             -t $IMAGE_URI \
             lambda_functions/face_embedder
           docker push $IMAGE_URI
