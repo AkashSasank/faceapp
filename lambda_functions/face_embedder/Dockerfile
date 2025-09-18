@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir /tmp/*.whl -t /opt/python
 
 
 # ---------- Runtime Stage ----------
-FROM public.ecr.aws/lambda/python:3.11
+FROM public.ecr.aws/lambda/python:3.10
 
 # Copy only the dependencies from builder
 COPY --from=builder /opt/python /opt/python
