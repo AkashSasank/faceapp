@@ -6,7 +6,6 @@ RUN pip install --upgrade pip
 ARG WHEEL_PATH=./dist
 COPY ${WHEEL_PATH}/ /tmp
 RUN pip install --no-cache-dir /tmp/*.whl
-COPY --from=builder /usr/local/lib/ /usr/local/lib/
 # Copy lambda app
 COPY app.py ${LAMBDA_TASK_ROOT}
 
