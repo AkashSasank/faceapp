@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: faceapp-dist
-          path: faceapp/dist/*.whl
+          path: faceapp/dist/*
 
   docker:
     runs-on: ubuntu-latest
