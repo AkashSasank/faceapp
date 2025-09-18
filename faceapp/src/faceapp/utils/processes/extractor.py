@@ -127,7 +127,7 @@ class FaceExtractor(Extractor):
             "embeddings": res[0 : len(embedding_models)],
             "analysis": res[len(embedding_models) :],
             "detector": face_detector,
-            "blob_name": path.split("/")[-1],
+            "blob_name": path,
             "meta": meta,
         }
         results = self.clean_extractions(results)

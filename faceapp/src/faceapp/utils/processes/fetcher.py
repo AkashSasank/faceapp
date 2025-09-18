@@ -19,8 +19,8 @@ class LocalImageFetcher(Fetcher):
 class S3ImageFetcher(Fetcher):
 
     async def fetch(
-        self, bucket_name: str, blob_name: str, download_dir: str, *args, **kwargs
+        self, input_bucket: str, blob_name: str, download_dir: str, *args, **kwargs
     ):
-        file_path = s3.download_file(bucket_name, blob_name, download_dir)
+        file_path = s3.download_file(input_bucket, blob_name, download_dir)
         assert os.path.exists(file_path)
         return {"path": file_path, "meta": {}}
