@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: faceapp-dist
-          path: ./dist
+          path: ./lambda_functions/face_embedder/dist
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
