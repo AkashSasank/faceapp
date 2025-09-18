@@ -7,6 +7,8 @@ ARG WHEEL_PATH=./dist
 COPY ${WHEEL_PATH}/ /tmp
 RUN pip install --no-cache-dir /tmp/*.whl
 # Copy lambda app
+ENV LAMBDA_TASK_ROOT=/var/task
+ENV LAMBDA_RUNTIME_DIR=/var/runtime
 COPY app.py ${LAMBDA_TASK_ROOT}
 
 CMD ["app.handler"]
