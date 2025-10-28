@@ -4,23 +4,32 @@ import os
 import cv2
 from dotenv import load_dotenv
 
-from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
+from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 from faceapp.utils.search import FaceSearch
 
 load_dotenv(".env")
 
-path = "jd.png"
+
+
+path = "amm.png"
 db_path = "dataset/test"
-model = "VGG-Face"
+embedding_models = [
+    "Facenet512",
+    "VGG-Face",
+    "DeepID"
+]
+thresholds = [
+    0.4, 0.5, 0.05
+]
 
-vector_store = AzureAISearchVectorStore(
-    service_name=os.getenv("AZURE_AI_SEARCH_SERVICE_NAME"),
-    api_key=os.getenv("AZURE_AI_SEARCH_API_KEY"),
-)
-index_name = "hhgdgttstsggcosine_vgg-face"
+vector_store = ChromadbVectorStore()
+project_id = "hhgdgttstsgsgsgggcosine"
 
-finder = FaceSearch(vector_db=vector_store, embedding_model=model)
-results = asyncio.run(finder.get_matches(path, index_name=index_name, threshold=0.70))
+finder = FaceSearch(vector_db=vector_store,
+                    embedding_models=embedding_models,
+                    model_thresholds=thresholds,
+                    project_id=project_id)
+results = asyncio.run(finder.find(path))
 for result in results:
     print(result)
     result = result.split("/")[-1]

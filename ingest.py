@@ -18,12 +18,11 @@ features = ["age", "gender", "race", "emotion"]
 
 
 models = [
-    # "Facenet",
+    "DeepID",
     "Facenet512",
     "VGG-Face",
 ]
 extraction_pipeline = LocalImageExtractionPipeline()
-# indexing_pipeline = AiSearchIndexingPipeline()
 indexing_pipeline = ChromadbIndexingPipeline()
 builder = PipelineBuilder()
 pipeline = (
@@ -34,13 +33,14 @@ pipeline = (
 
 dir = "./dataset/test"
 
+i = 0
 for img in os.listdir(dir):
     path = os.path.join(dir, img)
     producer_config = {
         "path": path,
         "embedding_models": models,
         "features": features,
-        "project_id": "hhgdgttstsggcosine",
+        "project_id": "hhgdgttstsgsgsgggcosine",
     }
 
     consumer_config = {
@@ -48,10 +48,15 @@ for img in os.listdir(dir):
     }
 
     tick = datetime.datetime.now()
+
     try:
         out = asyncio.run(pipeline.ainvoke(**producer_config | consumer_config))
-        print(out.keys())
+        print(out)
+        i+=1
+        print(i)
     except Exception as e:
-        raise e
+        print(e)
+        pass
+
     tock = datetime.datetime.now() - tick
     print(tock)
