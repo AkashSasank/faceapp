@@ -17,6 +17,7 @@ class FaceAnalyser:
             align=align_face,
             detector_backend=face_detector,
             silent=True,
+            enforce_detection=False,
         )
         return {"faces": faces, "features": features}
 
@@ -32,6 +33,7 @@ class FaceEmbedder:
             detector_backend=face_detector,
             align=align_face,
             model_name=embedding_model,
+            enforce_detection=False,
         )
         return {
             "embedding_objs": embedding_objs,
@@ -182,9 +184,6 @@ class FaceExtractor(Extractor):
                 final_data.append(d)
         return {
             "extractions": final_data,
-            "image_metadata": {
-                "num_faces": len(analysis_data),
-            },
         }
 
     @staticmethod

@@ -8,12 +8,15 @@ from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.search.documents._generated.models import VectorizedQuery
 from azure.search.documents.indexes import SearchIndexClient
-from azure.search.documents.indexes.models import (HnswAlgorithmConfiguration,
-                                                   SearchField,
-                                                   SearchFieldDataType,
-                                                   SearchIndex, SimpleField,
-                                                   VectorSearch,
-                                                   VectorSearchProfile)
+from azure.search.documents.indexes.models import (
+    HnswAlgorithmConfiguration, ExhaustiveKnnAlgorithmConfiguration,
+    SearchField,
+    SearchFieldDataType,
+    SearchIndex,
+    SimpleField,
+    VectorSearch,
+    VectorSearchProfile,
+)
 
 from faceapp._base.indexer import Indexer
 
@@ -44,11 +47,16 @@ class AzureAISearchVectorStore(Indexer):
                 HnswAlgorithmConfiguration(
                     name="hnsw-1",
                 ),
+                ExhaustiveKnnAlgorithmConfiguration(name="xknn")
             ],
             profiles=[
                 VectorSearchProfile(
                     name="vector-profile-hnsw-scalar",
                     algorithm_configuration_name="hnsw-1",
+                ),
+                VectorSearchProfile(
+                    name="vector-profile-xknn",
+                    algorithm_configuration_name="xknn",
                 )
             ],
         )
@@ -59,7 +67,7 @@ class AzureAISearchVectorStore(Indexer):
                 type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                 searchable=True,
                 vector_search_dimensions=dim,  # Replace with your embedding model's dimensions
-                vector_search_profile_name="vector-profile-hnsw-scalar",
+                vector_search_profile_name="vector-profile-xknn",
             ),
             SimpleField(name="blob_name", type=SearchFieldDataType.String),
         ]
@@ -94,6 +102,7 @@ class AzureAISearchVectorStore(Indexer):
         doc_id: Optional[str] = None,
         blob_name: Optional[str] = None,
         metadata: Optional[dict] = None,
+        **kwargs
     ) -> dict:
         doc_id = doc_id or str(ulid.ulid())
         # now = datetime.datetime.now().isoformat()

@@ -5,8 +5,9 @@ from faceapp._base.pipeline import Pipeline
 from faceapp.utils.processes.extractor import FaceExtractor
 from faceapp.utils.processes.fetcher import LocalImageFetcher, S3ImageFetcher
 from faceapp.utils.processes.metadata import ExtractionFormatter
-from faceapp.utils.processes.vector_index.azure_aisearch import \
-    AzureAISearchVectorStore
+from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
+from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
+from faceapp.utils.processes.metadata import ExtractionFormatter
 
 
 class LocalImageExtractionPipeline(Pipeline):
@@ -84,10 +85,8 @@ class AiSearchIndexingPipeline(Pipeline):
         }
         super(AiSearchIndexingPipeline, self).__init__(processes, name)
 
-    async def ainvoke(self, extractions: list, image_metadata: dict, **kwargs):
-        return await super().ainvoke(
-            extractions=extractions, image_metadata=image_metadata, **kwargs
-        )
+    async def ainvoke(self, extractions: list, **kwargs):
+        return await super().ainvoke(extractions=extractions, **kwargs)
 
 
 class S3ImageExtractorPipeline(Pipeline):
@@ -97,3 +96,12 @@ class S3ImageExtractorPipeline(Pipeline):
             "extractor": FaceExtractor(),
         }
         super(S3ImageExtractorPipeline, self).__init__(processes, name)
+
+class ChromadbIndexingPipeline(Pipeline):
+    def __init__(self, name: str = "ChromadbIndexingPipeline"):
+        processes = {
+            "formatter": ExtractionFormatter(),
+            "vector_index": ChromadbVectorStore(),
+        }
+
+        super(ChromadbIndexingPipeline, self).__init__(processes, name)
