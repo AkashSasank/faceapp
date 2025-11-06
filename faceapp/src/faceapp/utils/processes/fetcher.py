@@ -2,6 +2,7 @@ import os
 
 from faceapp._base.fetcher import Fetcher
 from faceapp.utils.storage import s3
+from faceapp.utils.misc import is_valid_image
 
 
 class LocalImageFetcher(Fetcher):
@@ -13,7 +14,9 @@ class LocalImageFetcher(Fetcher):
         :return:
         """
         assert os.path.isfile(path)
-        return {"path": path, "meta": {}}
+        if is_valid_image(path):
+            return {"path": path, "meta": {}}
+        return {"path": "", "meta": {}}
 
 
 class S3ImageFetcher(Fetcher):

@@ -5,23 +5,29 @@ from dotenv import load_dotenv
 
 from faceapp.utils.builders import PipelineBuilder
 from faceapp.utils.pipelines import (
-    AiSearchIndexingPipeline,
     LocalImageExtractionPipeline,
 ChromadbIndexingPipeline
 )
-from faceapp.utils.processes.metadata import ExtractionFormatter
+from utils import load_config
 
-load_dotenv(".env")
+PROJECT_NAME = "foo"
+CONFIG_FILE_NAME = "chroma.yaml"
 
+ingest_config = load_config(
+    f"./configs/{CONFIG_FILE_NAME}",
+                            PROJECT_NAME)
+load_dotenv(ingest_config.get("dotenv_path"))
 
-features = ["age", "gender", "race", "emotion"]
-
-
-models = [
-    "DeepID",
-    "Facenet512",
-    "VGG-Face",
-]
+config = {
+    "project_id": ingest_config["project_id"],
+    "features": ingest_config["extraction"].get("features", []),
+    "embedding_models": ingest_config["extraction"].get("embedding_models", []),
+    "output_path": ingest_config["files"].get("output_path"),
+    "index_config": ingest_config.get("index_config"),
+}
+# TODO: Handle failed extractions, implement retry
+# TODO: Move processed images to output folder
+# TODO: Add logger
 extraction_pipeline = LocalImageExtractionPipeline()
 indexing_pipeline = ChromadbIndexingPipeline()
 builder = PipelineBuilder()
@@ -31,32 +37,21 @@ pipeline = (
     .build("Local Image Extraction")
 )
 
-dir = "./dataset/test"
+input_paths = ingest_config["files"]["input_path"]
+if isinstance(input_paths, str):
+    input_paths = [input_paths]
 
-i = 0
-for img in os.listdir(dir):
-    path = os.path.join(dir, img)
-    producer_config = {
-        "path": path,
-        "embedding_models": models,
-        "features": features,
-        "project_id": "hhgdgttstsgsgsgggcosine",
-    }
+for input_dir in input_paths:
+    for img in os.listdir(input_dir):
+        path = os.path.join(input_dir, img)
+        step_config = config | {"path": path}
+        tick = datetime.datetime.now()
 
-    consumer_config = {
-        "output_path": "./dataset/processed/",
-    }
+        try:
+            out = asyncio.run(pipeline.ainvoke(**step_config))
+        except Exception as e:
+            print(e)
+            pass
 
-    tick = datetime.datetime.now()
-
-    try:
-        out = asyncio.run(pipeline.ainvoke(**producer_config | consumer_config))
-        print(out)
-        i+=1
-        print(i)
-    except Exception as e:
-        print(e)
-        pass
-
-    tock = datetime.datetime.now() - tick
-    print(tock)
+        tock = datetime.datetime.now() - tick
+        print(tock)

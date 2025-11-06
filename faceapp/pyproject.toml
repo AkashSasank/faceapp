@@ -10,7 +10,9 @@ dependencies = [
     "deepface>=0.0.95",
     "tf-keras>=2.20.1",
     "chromadb==1.2.2",
-    "ulid==1.1"
+    "ulid==1.1",
+    "python-magic==0.4.27",
+    "libmagic>=1.0",
 ]
 
 [build-system]

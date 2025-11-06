@@ -7,33 +7,34 @@ from dotenv import load_dotenv
 from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 from faceapp.utils.search import FaceSearch
 
-load_dotenv(".env")
+from utils import load_config
+
+PROJECT_NAME = "test"
+CONFIG_FILE_NAME = "chroma.yaml"
+config = load_config(
+    f"./configs/{CONFIG_FILE_NAME}",
+    PROJECT_NAME)
+load_dotenv(config.get("dotenv_path"))
 
 
 
-path = "amm.png"
-db_path = "dataset/test"
-embedding_models = [
-    "Facenet512",
-    "VGG-Face",
-    "DeepID"
-]
-thresholds = [
-    0.4, 0.5, 0.05
-]
+path = "dataset/faces/dad.png"
+db_path = "dataset/raw"
+embedding_models = config.get("extraction")["embedding_models"]
+thresholds = config.get("extraction")["similarity_thresholds"]
+project_id = config.get("project_id")
 
 vector_store = ChromadbVectorStore()
-project_id = "hhgdgttstsgsgsgggcosine"
-
 finder = FaceSearch(vector_db=vector_store,
                     embedding_models=embedding_models,
                     model_thresholds=thresholds,
                     project_id=project_id)
 results = asyncio.run(finder.find(path))
 for result in results:
-    print(result)
-    result = result.split("/")[-1]
-    result = os.path.join(db_path, result)
-    image = cv2.imread(result)
-    cv2.imshow("Output", cv2.imread(result))
-    cv2.waitKey(0)
+    if result:
+        print(result)
+        result = result.split("/")[-1]
+        result = os.path.join(db_path, result)
+        image = cv2.imread(result)
+        cv2.imshow("Output", cv2.imread(result))
+        cv2.waitKey(0)
