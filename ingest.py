@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import os
+import shutil
 from dotenv import load_dotenv
 
 from faceapp.utils.builders import PipelineBuilder
@@ -41,17 +42,33 @@ input_paths = ingest_config["files"]["input_path"]
 if isinstance(input_paths, str):
     input_paths = [input_paths]
 
+failed_path = ingest_config["files"].get("failed_path")
+if failed_path and isinstance(failed_path, list):
+    failed_path = failed_path[0]
+if failed_path and not os.path.exists(failed_path):
+    os.makedirs(failed_path)
+
 for input_dir in input_paths:
+    if not os.path.exists(input_dir):
+        print(f"Input directory not found: {input_dir}")
+        continue
     for img in os.listdir(input_dir):
         path = os.path.join(input_dir, img)
         step_config = config | {"path": path}
         tick = datetime.datetime.now()
 
         try:
+            print(f"Processing {img}...")
             out = asyncio.run(pipeline.ainvoke(**step_config))
         except Exception as e:
-            print(e)
-            pass
+            print(f"Error processing {path}: {e}")
+            if failed_path:
+                try:
+                    shutil.move(path, os.path.join(failed_path, img))
+                    print(f"Moved {img} to {failed_path}")
+                except Exception as move_error:
+                    print(f"Failed to move {img}: {move_error}")
+            continue
 
         tock = datetime.datetime.now() - tick
-        print(tock)
+        print(f"Processed {img} in {tock}")

@@ -41,12 +41,16 @@ class ChromadbVectorStore(Indexer):
                         }
                     })
             print(config)
+            metadata = {
+                "created_on": datetime.now().isoformat(),
+                "updated_on": datetime.now().isoformat(),
+            }
+            if "hnsw" in config:
+                for key, value in config["hnsw"].items():
+                    metadata[f"hnsw:{key}"] = value
+
             collection = self.index_client.create_collection(name=index_name,
-                                                                configuration=config,
-                                                                metadata={
-                                                                    "created_on": datetime.now().isoformat(),
-                                                                    "updated_on": datetime.now().isoformat(),
-                                                                },
+                                                                metadata=metadata,
                                                              )
         else:
             print("Index exists:", index_name)
