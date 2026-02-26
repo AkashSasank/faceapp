@@ -45,7 +45,7 @@ class LocalImageExtractionPipeline(Pipeline):
                 **kwargs
             )
             return data
-        return {}
+        return {"extractions": []}
 
 
 class LocalImageDirExtractionPipeline(LocalImageExtractionPipeline):
