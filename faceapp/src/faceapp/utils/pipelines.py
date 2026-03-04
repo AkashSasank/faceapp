@@ -4,9 +4,10 @@ from typing import AsyncGenerator
 from faceapp._base.pipeline import Pipeline
 from faceapp.utils.processes.extractor import FaceExtractor
 from faceapp.utils.processes.fetcher import LocalImageFetcher, S3ImageFetcher
-from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
-from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 from faceapp.utils.processes.metadata import ExtractionFormatter
+from faceapp.utils.processes.vector_index.azure_aisearch import \
+    AzureAISearchVectorStore
+from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 
 
 class LocalImageExtractionPipeline(Pipeline):
@@ -92,6 +93,7 @@ class S3ImageExtractorPipeline(Pipeline):
     """
     Pipeline to fetch image from s3 bucket and do face extraction
     """
+
     def __init__(self, name: str = "S3ImageExtractorPipeline"):
         processes = {
             "image_fetcher": S3ImageFetcher(),
@@ -99,10 +101,12 @@ class S3ImageExtractorPipeline(Pipeline):
         }
         super(S3ImageExtractorPipeline, self).__init__(processes, name)
 
+
 class ChromadbIndexingPipeline(Pipeline):
     """
     Pipeline to format face extractions and upload them to chromaDB
     """
+
     def __init__(self, name: str = "ChromadbIndexingPipeline"):
         processes = {
             "formatter": ExtractionFormatter(),

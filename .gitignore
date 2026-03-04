@@ -12,3 +12,6 @@ dataset/
 */dist
 .idea
 .env
+
+# Artifacts
+chroma/

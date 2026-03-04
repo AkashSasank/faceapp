@@ -1,21 +1,18 @@
 import asyncio
 import datetime
 import os
+
 from dotenv import load_dotenv
 
 from faceapp.utils.builders import PipelineBuilder
-from faceapp.utils.pipelines import (
-    LocalImageExtractionPipeline,
-ChromadbIndexingPipeline
-)
+from faceapp.utils.pipelines import (ChromadbIndexingPipeline,
+                                     LocalImageExtractionPipeline)
 from utils import load_config
 
 PROJECT_NAME = "foo"
 CONFIG_FILE_NAME = "chroma.yaml"
 
-ingest_config = load_config(
-    f"./configs/{CONFIG_FILE_NAME}",
-                            PROJECT_NAME)
+ingest_config = load_config(f"./configs/{CONFIG_FILE_NAME}", PROJECT_NAME)
 load_dotenv(ingest_config.get("dotenv_path"))
 
 config = {

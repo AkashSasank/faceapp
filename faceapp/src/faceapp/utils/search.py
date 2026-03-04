@@ -1,11 +1,14 @@
 import asyncio
 import itertools
+
 from faceapp._base.indexer import Indexer
 from faceapp.utils.processes.extractor import FaceEmbedder
 
 
 class Search:
-    def __init__(self, vector_db: Indexer, embedding_model: str, threshold: float = 0.6):
+    def __init__(
+        self, vector_db: Indexer, embedding_model: str, threshold: float = 0.6
+    ):
         self.vector_db = vector_db
         self.embedding_model = embedding_model
         self.threshold = threshold
@@ -32,14 +35,21 @@ class Search:
         img_path = search_result["blob_name"]
         return img_path
 
+
 class FaceSearch:
-    def __init__(self,vector_db:Indexer, project_id:str, embedding_models:list, model_thresholds:list):
+    def __init__(
+        self,
+        vector_db: Indexer,
+        project_id: str,
+        embedding_models: list,
+        model_thresholds: list,
+    ):
         self.project_id = project_id
         self.embedding_models = embedding_models
         self.model_thresholds = model_thresholds
         self.finders = []
         self.index_names = []
-        for i,j in zip(embedding_models, model_thresholds):
+        for i, j in zip(embedding_models, model_thresholds):
             self.finders.append(
                 Search(vector_db=vector_db, embedding_model=i, threshold=j)
             )
@@ -52,4 +62,3 @@ class FaceSearch:
             tasks.append(finder.get_matches(img_path, index_name))
         results = await asyncio.gather(*tasks)
         return list(set(list(itertools.chain(*results))))
-

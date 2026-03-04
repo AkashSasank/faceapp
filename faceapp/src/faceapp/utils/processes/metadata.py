@@ -9,8 +9,12 @@ class ExtractionFormatter(Process):
 
     def create_metadata(self, extractions: list, project_id: str = None):
         formatted_data = list(map(lambda x: self.__format(x, project_id), extractions))
-        num_embedding_models = len(list({i[1].get("embedding_model", 1) for i in formatted_data}))
-        num_faces = len(formatted_data)//max(num_embedding_models, 1) #To prevent division by zero
+        num_embedding_models = len(
+            list({i[1].get("embedding_model", 1) for i in formatted_data})
+        )
+        num_faces = len(formatted_data) // max(
+            num_embedding_models, 1
+        )  # To prevent division by zero
         # when no faces detected
         embeddings = []
         metadata = []
@@ -36,7 +40,7 @@ class ExtractionFormatter(Process):
             "dominant_emotion",
             "detector",
             "embedding_model",
-            "blob_name"
+            "blob_name",
         ]
         face = dict()
         for key in face_keys:
@@ -60,11 +64,15 @@ class ExtractionFormatter(Process):
 
             face[key] = extraction.get(key)
         embedding = extraction.get("embedding")
-        return (embedding, {
-            "created_on": datetime.now().isoformat(),
-            "updated_on": datetime.now().isoformat(),
-            "index_name": index_name}|face
-                )
+        return (
+            embedding,
+            {
+                "created_on": datetime.now().isoformat(),
+                "updated_on": datetime.now().isoformat(),
+                "index_name": index_name,
+            }
+            | face,
+        )
 
     async def ainvoke(
         self, extractions: list, project_id: str, *args, **kwargs

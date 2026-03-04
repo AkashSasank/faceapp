@@ -1,6 +1,5 @@
-import os
 import mimetypes
-
+import os
 
 # Allowed image MIME types
 VALID_IMAGE_MIMETYPES = {
@@ -9,7 +8,7 @@ VALID_IMAGE_MIMETYPES = {
     "image/gif",
     "image/webp",
     "image/bmp",
-    "image/tiff"
+    "image/tiff",
 }
 
 

@@ -6,16 +6,12 @@ from dotenv import load_dotenv
 
 from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 from faceapp.utils.search import FaceSearch
-
 from utils import load_config
 
 PROJECT_NAME = "test"
 CONFIG_FILE_NAME = "chroma.yaml"
-config = load_config(
-    f"./configs/{CONFIG_FILE_NAME}",
-    PROJECT_NAME)
+config = load_config(f"./configs/{CONFIG_FILE_NAME}", PROJECT_NAME)
 load_dotenv(config.get("dotenv_path"))
-
 
 
 path = "dataset/faces/dad.png"
@@ -25,10 +21,12 @@ thresholds = config.get("extraction")["similarity_thresholds"]
 project_id = config.get("project_id")
 
 vector_store = ChromadbVectorStore()
-finder = FaceSearch(vector_db=vector_store,
-                    embedding_models=embedding_models,
-                    model_thresholds=thresholds,
-                    project_id=project_id)
+finder = FaceSearch(
+    vector_db=vector_store,
+    embedding_models=embedding_models,
+    model_thresholds=thresholds,
+    project_id=project_id,
+)
 results = asyncio.run(finder.find(path))
 for result in results:
     if result:

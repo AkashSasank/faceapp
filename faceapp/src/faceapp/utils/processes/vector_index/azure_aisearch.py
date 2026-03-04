@@ -9,14 +9,9 @@ from azure.search.documents import SearchClient
 from azure.search.documents._generated.models import VectorizedQuery
 from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    HnswAlgorithmConfiguration, ExhaustiveKnnAlgorithmConfiguration,
-    SearchField,
-    SearchFieldDataType,
-    SearchIndex,
-    SimpleField,
-    VectorSearch,
-    VectorSearchProfile,
-)
+    ExhaustiveKnnAlgorithmConfiguration, HnswAlgorithmConfiguration,
+    SearchField, SearchFieldDataType, SearchIndex, SimpleField, VectorSearch,
+    VectorSearchProfile)
 
 from faceapp._base.indexer import Indexer
 
@@ -47,7 +42,7 @@ class AzureAISearchVectorStore(Indexer):
                 HnswAlgorithmConfiguration(
                     name="hnsw-1",
                 ),
-                ExhaustiveKnnAlgorithmConfiguration(name="xknn")
+                ExhaustiveKnnAlgorithmConfiguration(name="xknn"),
             ],
             profiles=[
                 VectorSearchProfile(
@@ -57,7 +52,7 @@ class AzureAISearchVectorStore(Indexer):
                 VectorSearchProfile(
                     name="vector-profile-xknn",
                     algorithm_configuration_name="xknn",
-                )
+                ),
             ],
         )
         fields = [
@@ -102,7 +97,7 @@ class AzureAISearchVectorStore(Indexer):
         doc_id: Optional[str] = None,
         blob_name: Optional[str] = None,
         metadata: Optional[dict] = None,
-        **kwargs
+        **kwargs,
     ) -> dict:
         doc_id = doc_id or str(ulid.ulid())
         # now = datetime.datetime.now().isoformat()

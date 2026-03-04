@@ -1,8 +1,8 @@
 import os
 
 from faceapp._base.fetcher import Fetcher
-from faceapp.utils.storage import s3
 from faceapp.utils.misc import is_valid_image
+from faceapp.utils.storage import s3
 
 
 class LocalImageFetcher(Fetcher):
