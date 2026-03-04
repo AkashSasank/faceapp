@@ -3,8 +3,7 @@ import json
 import os
 
 from faceapp.utils.builders import PipelineBuilder
-from faceapp.utils.pipelines import (AzureAISearchVectorStore,
-                                     S3ImageExtractorPipeline)
+from faceapp.utils.pipelines import AzureAISearchVectorStore, S3ImageExtractorPipeline
 from faceapp.utils.processes.cleanup import S3Cleanup
 
 pipeline = (

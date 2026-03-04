@@ -9,11 +9,19 @@ from azure.search.documents import SearchClient
 from azure.search.documents._generated.models import VectorizedQuery
 from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    ExhaustiveKnnAlgorithmConfiguration, HnswAlgorithmConfiguration,
-    SearchField, SearchFieldDataType, SearchIndex, SimpleField, VectorSearch,
-    VectorSearchProfile)
+    ExhaustiveKnnAlgorithmConfiguration,
+    HnswAlgorithmConfiguration,
+    SearchField,
+    SearchFieldDataType,
+    SearchIndex,
+    SimpleField,
+    VectorSearch,
+    VectorSearchProfile,
+)
 
+from faceapp._base.base import ProcessOutput
 from faceapp._base.indexer import Indexer
+from faceapp.utils.processes.process_outputs import AzureIndexLoadOutput
 
 
 class AzureAISearchVectorStore(Indexer):
@@ -85,10 +93,13 @@ class AzureAISearchVectorStore(Indexer):
         self.search_clients[index_name] = search_client
         return search_client
 
-    async def load(self, extractions: list, *args, **kwargs) -> dict:
+    async def load(self, extractions: list, *args, **kwargs) -> ProcessOutput:
         tasks = [self.__insert(**x) for x in extractions]
         docs = await asyncio.gather(*tasks)
-        return {"documents": docs, "blob_name": extractions[0].get("blob_name")}
+        return AzureIndexLoadOutput(
+            documents=docs,
+            blob_name=extractions[0].get("blob_name"),
+        )
 
     async def __insert(
         self,

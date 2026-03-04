@@ -1,6 +1,7 @@
 import os
 
 from faceapp._base.fetcher import Fetcher
+from faceapp.utils.processes.process_outputs import FetchOutput
 from faceapp.utils.misc import is_valid_image
 from faceapp.utils.storage import s3
 
@@ -15,8 +16,8 @@ class LocalImageFetcher(Fetcher):
         """
         assert os.path.isfile(path)
         if is_valid_image(path):
-            return {"path": path, "meta": {}}
-        return {"path": "", "meta": {}}
+            return FetchOutput(path=path, meta={})
+        return FetchOutput(path="", meta={})
 
 
 class S3ImageFetcher(Fetcher):
@@ -26,4 +27,4 @@ class S3ImageFetcher(Fetcher):
     ):
         file_path = s3.download_file(input_bucket, blob_name, download_dir)
         assert os.path.exists(file_path)
-        return {"path": file_path, "meta": {}}
+        return FetchOutput(path=file_path, meta={})

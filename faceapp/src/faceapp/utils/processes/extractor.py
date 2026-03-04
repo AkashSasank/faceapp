@@ -4,13 +4,15 @@ from typing import List
 
 from deepface import DeepFace
 
+from faceapp._base.base import ProcessOutput
 from faceapp._base.extractor import Extractor
+from faceapp.utils.processes.process_outputs import FaceExtractionOutput
 
 
 class FaceAnalyser:
 
     @staticmethod
-    def analyse(path, features: [List, None], face_detector: str, align_face=True):
+    def analyse(path, features: List, face_detector: str, align_face=True):
         faces = DeepFace.analyze(
             img_path=path,
             actions=features,
@@ -98,7 +100,7 @@ class FaceExtractor(Extractor):
         face_detector: str = "mtcnn",
         *args,
         **kwargs,
-    ) -> dict:
+    ) -> ProcessOutput:
         features = self.__validate_features(features)
         self.__validate_model(embedding_models)
         self.__validate_detector(face_detector)
@@ -132,15 +134,14 @@ class FaceExtractor(Extractor):
             "blob_name": path,
             "meta": meta,
         }
-        results = self.clean_extractions(results)
-        return results
+        return self.clean_extractions(results)
 
     def clean_extractions(
         self,
         extractions: dict,
         face_threshold: float = 0.9,
         iou_threshold: float = 0.95,
-    ) -> dict:
+    ) -> ProcessOutput:
         blob_name = extractions["blob_name"]
         detector = extractions["detector"]
         meta = extractions["meta"]
@@ -182,9 +183,7 @@ class FaceExtractor(Extractor):
                 d["blob_name"] = blob_name
                 d["meta"] = meta
                 final_data.append(d)
-        return {
-            "extractions": final_data,
-        }
+        return FaceExtractionOutput(extractions=final_data)
 
     @staticmethod
     def __clean_analysis_data(analysis, face_threshold):

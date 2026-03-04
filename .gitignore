@@ -8,10 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
-dataset/
 */dist
 .idea
 .env
 
 # Artifacts
+dataset/
 chroma/

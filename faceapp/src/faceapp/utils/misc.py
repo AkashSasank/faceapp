@@ -1,21 +1,12 @@
-import mimetypes
 import os
 
-# Allowed image MIME types
-VALID_IMAGE_MIMETYPES = {
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-    "image/bmp",
-    "image/tiff",
-}
+import magic
 
 
 def is_valid_image(file_path):
-    """Check if file has an image MIME type (based on extension)."""
+    """Check if file is an image using MIME type detection."""
     if not os.path.isfile(file_path):
         return False
 
-    mime_type, _ = mimetypes.guess_type(file_path)
-    return mime_type in VALID_IMAGE_MIMETYPES
+    mime_type = magic.from_file(file_path, mime=True)
+    return isinstance(mime_type, str) and mime_type.startswith("image/")

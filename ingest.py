@@ -5,8 +5,10 @@ import os
 from dotenv import load_dotenv
 
 from faceapp.utils.builders import PipelineBuilder
-from faceapp.utils.pipelines import (ChromadbIndexingPipeline,
-                                     LocalImageExtractionPipeline)
+from faceapp.utils.pipelines import (
+    ChromadbIndexingPipeline,
+    LocalImageExtractionPipeline,
+)
 from utils import load_config
 
 PROJECT_NAME = "foo"

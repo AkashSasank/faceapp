@@ -1,10 +1,23 @@
-from typing import Protocol
+from typing import Any, Protocol, TypeVar
+
+from pydantic import BaseModel, ConfigDict
 
 
-class Process(Protocol):
+class ProcessOutput(BaseModel):
+    model_config = ConfigDict(extra="allow")
 
-    def invoke(self, *args, **kwargs) -> dict:
-        return NotImplemented
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump(exclude_none=True)
 
-    async def ainvoke(self, *args, **kwargs) -> dict:
-        return NotImplemented
+
+TProcessOutput = TypeVar("TProcessOutput", bound=ProcessOutput, covariant=True)
+
+
+class Process(Protocol[TProcessOutput]):
+    """
+    Base protocall for all processes.
+    All member classes in faceapp that execute a process
+    is expected to follow this protocol.
+    """
+
+    async def ainvoke(self, *args, **kwargs) -> TProcessOutput: ...

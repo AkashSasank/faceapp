@@ -1,12 +1,12 @@
 import os
-from typing import AsyncGenerator
 
+from faceapp._base.base import ProcessOutput
 from faceapp._base.pipeline import Pipeline
+from faceapp.utils.misc import is_valid_image
 from faceapp.utils.processes.extractor import FaceExtractor
 from faceapp.utils.processes.fetcher import LocalImageFetcher, S3ImageFetcher
 from faceapp.utils.processes.metadata import ExtractionFormatter
-from faceapp.utils.processes.vector_index.azure_aisearch import \
-    AzureAISearchVectorStore
+from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
 from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 
 
@@ -24,8 +24,8 @@ class LocalImageExtractionPipeline(Pipeline):
 
     async def ainvoke(
         self, path: str, embedding_models: list, features: list, *args, **kwargs
-    ) -> dict:
-        return await self.__call_pipeline(
+    ):
+        return await self._call_pipeline(
             path=path,
             embedding_models=embedding_models,
             features=features,
@@ -33,11 +33,10 @@ class LocalImageExtractionPipeline(Pipeline):
             **kwargs
         )
 
-    async def __call_pipeline(
+    async def _call_pipeline(
         self, path: str, embedding_models: list, features: list, *args, **kwargs
-    ) -> dict:
-        extension = path.split(".")[-1].lower()
-        if extension in ["jpg", "jpeg", "png"]:
+    ):
+        if is_valid_image(path):
             data = await super().ainvoke(
                 path=path,
                 embedding_models=embedding_models,
@@ -46,7 +45,7 @@ class LocalImageExtractionPipeline(Pipeline):
                 **kwargs
             )
             return data
-        return {}
+        return ProcessOutput.model_validate({})
 
 
 class LocalImageDirExtractionPipeline(LocalImageExtractionPipeline):
@@ -56,16 +55,16 @@ class LocalImageDirExtractionPipeline(LocalImageExtractionPipeline):
 
     async def ainvoke(
         self, path: str, embedding_models: list, features: list, *args, **kwargs
-    ) -> AsyncGenerator[dict, None]:
+    ):
         if os.path.isdir(path):
             for image in os.listdir(path):
                 img_path = os.path.join(path, image)
-                output = await self.__call_pipeline(
+                output = await self._call_pipeline(
                     img_path, embedding_models, features, *args, **kwargs
                 )
                 yield output
         else:
-            yield await self.__call_pipeline(
+            yield await self._call_pipeline(
                 path=path,
                 embedding_models=embedding_models,
                 features=features,

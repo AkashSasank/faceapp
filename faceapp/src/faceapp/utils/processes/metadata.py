@@ -2,7 +2,8 @@ from datetime import datetime
 
 import ulid
 
-from faceapp._base.base import Process
+from faceapp._base.base import Process, ProcessOutput
+from faceapp.utils.processes.process_outputs import ImageMetadataOutput, MetadataFormattingOutput
 
 
 class ExtractionFormatter(Process):
@@ -76,16 +77,15 @@ class ExtractionFormatter(Process):
 
     async def ainvoke(
         self, extractions: list, project_id: str, *args, **kwargs
-    ) -> dict:
+    ) -> ProcessOutput:
         embeddings, metadata = self.create_metadata(extractions, project_id)
-        return {
-            "embeddings": embeddings,
-            "metadata": metadata,
-        }
+        return MetadataFormattingOutput(embeddings=embeddings, metadata=metadata)
 
 
 class ImageMetadataAggregator(Process):
     async def ainvoke(
         self, documents: list, image_metadata: dict, *args, **kwargs
-    ) -> dict:
-        return {"image_metadata": image_metadata | {"documents": documents}}
+    ) -> ProcessOutput:
+        return ImageMetadataOutput(
+            image_metadata=image_metadata | {"documents": documents}
+        )
