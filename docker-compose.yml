@@ -1,25 +1,22 @@
 version: "3.8"
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
-    container_name: es01
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false   # disable auth for local dev
-      - xpack.ml.enabled=true
-      - xpack.security.enrollment.enabled=false
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "6333:6333"
+      - "6334:6334"
+    environment:
+      - QDRANT__STORAGE__SNAPSHOTS_PATH=/qdrant/snapshots
     volumes:
-      - es_data:/usr/share/elasticsearch/data
+      - qdrant_storage:/qdrant/storage
+      - qdrant_snapshots:/qdrant/snapshots
 
 volumes:
+  qdrant_storage:
+    driver: local
+  qdrant_snapshots:
+    driver: local
   es_data:
     driver: local
