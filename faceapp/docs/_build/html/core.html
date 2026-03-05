@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Core package &#8212; faceapp  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Service layer" href="services.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="core-package">
+<h1>Core package<a class="headerlink" href="#core-package" title="Link to this heading">¶</a></h1>
+<section id="module-faceapp">
+<span id="faceapp-package"></span><h2>faceapp package<a class="headerlink" href="#module-faceapp" title="Link to this heading">¶</a></h2>
+<p>Core FaceApp package.</p>
+<p>This package contains reusable base abstractions and local process utilities
+for extraction, indexing, and search workflows.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="faceapp.hello">
+<span class="sig-prename descclassname"><span class="pre">faceapp.</span></span><span class="sig-name descname"><span class="pre">hello</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.hello" title="Link to this definition">¶</a></dt>
+<dd><p>Return a minimal greeting used by package smoke checks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-faceapp._base">
+<span id="faceapp-base-package"></span><h2>faceapp._base package<a class="headerlink" href="#module-faceapp._base" title="Link to this heading">¶</a></h2>
+<p>Abstract interfaces and pipeline primitives used by FaceApp.</p>
+</section>
+<section id="module-faceapp.utils">
+<span id="faceapp-utils-package"></span><h2>faceapp.utils package<a class="headerlink" href="#module-faceapp.utils" title="Link to this heading">¶</a></h2>
+<p>Utility helpers, process implementations, and storage integrations.</p>
+</section>
+<section id="module-faceapp.utils.pipelines">
+<span id="faceapp-utils-pipelines"></span><h2>faceapp.utils.pipelines<a class="headerlink" href="#module-faceapp.utils.pipelines" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="faceapp.utils.pipelines.LocalImageExtractionPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp.utils.pipelines.</span></span><span class="sig-name descname"><span class="pre">LocalImageExtractionPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LocalImageExtractionPipeline'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.pipelines.LocalImageExtractionPipeline" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></p>
+<p>Extracts faces from a single image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.pipelines.LocalImageExtractionPipeline.ainvoke">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ainvoke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.pipelines.LocalImageExtractionPipeline.ainvoke" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>)</p></li>
+<li><p><strong>embedding_models</strong> (<em>list</em>)</p></li>
+<li><p><strong>features</strong> (<em>list</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="faceapp.utils.pipelines.QdrantIndexingPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp.utils.pipelines.</span></span><span class="sig-name descname"><span class="pre">QdrantIndexingPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'QdrantIndexingPipeline'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.pipelines.QdrantIndexingPipeline" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></p>
+<p>Pipeline to format face extractions and upload them to Qdrant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-faceapp.utils.search">
+<span id="faceapp-utils-search"></span><h2>faceapp.utils.search<a class="headerlink" href="#module-faceapp.utils.search" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="faceapp.utils.search.Search">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp.utils.search.</span></span><span class="sig-name descname"><span class="pre">Search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.search.Search" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector_db</strong> (<em>Indexer</em>)</p></li>
+<li><p><strong>embedding_model</strong> (<em>str</em>)</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.search.Search.get_matches">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.search.Search.get_matches" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_path</strong> (<em>str</em>)</p></li>
+<li><p><strong>index_name</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="faceapp.utils.search.FaceSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp.utils.search.</span></span><span class="sig-name descname"><span class="pre">FaceSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector_db</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_thresholds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.search.FaceSearch" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vector_db</strong> (<em>Indexer</em>)</p></li>
+<li><p><strong>project_id</strong> (<em>str</em>)</p></li>
+<li><p><strong>embedding_models</strong> (<em>list</em>)</p></li>
+<li><p><strong>model_thresholds</strong> (<em>list</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.search.FaceSearch.find">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.search.FaceSearch.find" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img_path</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-faceapp.utils.storage">
+<span id="faceapp-utils-storage"></span><h2>faceapp.utils.storage<a class="headerlink" href="#module-faceapp.utils.storage" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp.utils.storage.</span></span><span class="sig-name descname"><span class="pre">S3Utils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aws_access_key_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aws_secret_access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">region_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils.download_file">
+<span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./downloads'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils.download_file" title="Link to this definition">¶</a></dt>
+<dd><p>Download a file from S3 and return the local path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bucket_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>object_key</strong> (<em>str</em>)</p></li>
+<li><p><strong>download_dir</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils.upload_file">
+<span class="sig-name descname"><span class="pre">upload_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils.upload_file" title="Link to this definition">¶</a></dt>
+<dd><p>Upload a local file to an S3 bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em>)</p></li>
+<li><p><strong>bucket_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>object_key</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils.list_files">
+<span class="sig-name descname"><span class="pre">list_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils.list_files" title="Link to this definition">¶</a></dt>
+<dd><p>List files in an S3 bucket with an optional prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bucket_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>prefix</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils.delete_file">
+<span class="sig-name descname"><span class="pre">delete_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils.delete_file" title="Link to this definition">¶</a></dt>
+<dd><p>Delete a file from an S3 bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bucket_name</strong> (<em>str</em>)</p></li>
+<li><p><strong>object_key</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="faceapp.utils.storage.S3Utils.move_file">
+<span class="sig-name descname"><span class="pre">move_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_bucket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_bucket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp.utils.storage.S3Utils.move_file" title="Link to this definition">¶</a></dt>
+<dd><p>Move a file from one S3 bucket to another (copy + delete).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_bucket</strong> (<em>str</em>)</p></li>
+<li><p><strong>source_key</strong> (<em>str</em>)</p></li>
+<li><p><strong>dest_bucket</strong> (<em>str</em>)</p></li>
+<li><p><strong>dest_key</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">faceapp</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="services.html">Service layer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp">faceapp package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp._base">faceapp._base package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp.utils">faceapp.utils package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp.utils.pipelines">faceapp.utils.pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp.utils.search">faceapp.utils.search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faceapp.utils.storage">faceapp.utils.storage</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="services.html" title="previous chapter">Service layer</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

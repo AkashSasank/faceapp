@@ -35,6 +35,8 @@ class QdrantWorkerResultStore:
         self._ensure_collection()
 
     def _ensure_collection(self) -> None:
+        """Create the backing collection when it does not yet exist."""
+
         if self.client.collection_exists(collection_name=self.collection_name):
             return
 
