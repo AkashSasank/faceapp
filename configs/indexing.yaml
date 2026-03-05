@@ -1,0 +1,112 @@
+defaults:
+  vector_db: "qdrant"
+  profiles_by_vector_db:
+    chroma: "chroma_default"
+    qdrant: "qdrant_default"
+
+profiles:
+  chroma_default:
+    vector_db: "chroma"
+    index_config:
+      DeepID:
+        hnsw:
+          space: "cosine"
+          ef_construction: 500
+          ef_search: 500
+          max_neighbors: 128
+      VGG-Face:
+        hnsw:
+          space: "cosine"
+          ef_construction: 500
+          ef_search: 500
+          max_neighbors: 128
+      Facenet512:
+        hnsw:
+          space: "cosine"
+          ef_construction: 500
+          ef_search: 500
+          max_neighbors: 128
+
+  chroma_dot_product:
+    vector_db: "chroma"
+    index_config:
+      DeepID:
+        hnsw:
+          space: "ip"
+          ef_construction: 500
+          ef_search: 500
+          max_neighbors: 128
+
+  qdrant_default:
+    vector_db: "qdrant"
+    qdrant_index_config:
+      defaults:
+        distance: "cosine"
+        hnsw:
+          m: 32
+          ef_construct: 400
+          full_scan_threshold: 20000
+        search:
+          hnsw_ef: 512
+          exact: false
+      DeepID:
+        distance: "cosine"
+        hnsw:
+          m: 32
+          ef_construct: 400
+        search:
+          hnsw_ef: 512
+          exact: false
+      VGG-Face:
+        distance: "cosine"
+        hnsw:
+          m: 32
+          ef_construct: 400
+        search:
+          hnsw_ef: 512
+          exact: false
+      Facenet512:
+        distance: "cosine"
+        hnsw:
+          m: 32
+          ef_construct: 400
+        search:
+          hnsw_ef: 512
+          exact: false
+
+  qdrant_high_recall:
+    vector_db: "qdrant"
+    qdrant_index_config:
+      defaults:
+        distance: "cosine"
+        hnsw:
+          m: 64
+          ef_construct: 800
+          full_scan_threshold: 20000
+        search:
+          hnsw_ef: 1024
+          exact: false
+      DeepID:
+        distance: "cosine"
+        hnsw:
+          m: 64
+          ef_construct: 800
+        search:
+          hnsw_ef: 1024
+          exact: false
+      VGG-Face:
+        distance: "cosine"
+        hnsw:
+          m: 64
+          ef_construct: 800
+        search:
+          hnsw_ef: 1024
+          exact: false
+      Facenet512:
+        distance: "cosine"
+        hnsw:
+          m: 64
+          ef_construct: 800
+        search:
+          hnsw_ef: 1024
+          exact: false

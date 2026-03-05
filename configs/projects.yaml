@@ -1,0 +1,37 @@
+foo:
+  project_id: "hgjg3366645j12gj"
+  files:
+    input_path: ["./dataset/raw"]
+    output_path: ["./dataset/processed"]
+    failed_path: ["./dataset/retry"]
+  config_refs:
+    extraction_profile: "default"
+    indexing:
+      vector_db: "qdrant"
+      profile: "qdrant_high_recall"
+  dotenv_path:
+
+bar:
+  project_id: "hvjassjsajgjg12jg12gj12gj"
+  files:
+    input_path: ["./dataset/raw"]
+    output_path:
+    failed_path:
+  config_refs:
+    extraction_profile: "default"
+    indexing:
+      vector_db: "chroma"
+      profile: "chroma_default"
+  dotenv_path:
+
+test:
+  project_id: "thisisatestproj"
+  files:
+    input_path: ["./dataset/raw"]
+    output_path:
+    failed_path:
+  config_refs:
+    extraction_profile: "default"
+    indexing:
+      vector_db: "qdrant"
+  dotenv_path:

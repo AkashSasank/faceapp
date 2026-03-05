@@ -30,6 +30,41 @@ foo:
         ef_search: 500
         max_neighbors: 128
 
+  qdrant_index_config:
+    defaults:
+      distance: "cosine"
+      hnsw:
+        m: 64
+        ef_construct: 800
+        full_scan_threshold: 20000
+      search:
+        hnsw_ef: 1024
+        exact: false
+    DeepID:
+      distance: "cosine"
+      hnsw:
+        m: 64
+        ef_construct: 800
+      search:
+        hnsw_ef: 1024
+        exact: false
+    VGG-Face:
+      distance: "cosine"
+      hnsw:
+        m: 64
+        ef_construct: 800
+      search:
+        hnsw_ef: 1024
+        exact: false
+    Facenet512:
+      distance: "cosine"
+      hnsw:
+        m: 64
+        ef_construct: 800
+      search:
+        hnsw_ef: 1024
+        exact: false
+
   dotenv_path:
 
 bar:

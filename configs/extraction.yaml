@@ -1,0 +1,24 @@
+defaults:
+  profile: "default"
+
+profiles:
+  default:
+    extraction:
+      features: ["age", "gender", "race", "emotion"]
+      embedding_models: ["Facenet512"]
+      similarity_thresholds: [0.4]
+      weightage: [1]
+
+  deepid_fast:
+    extraction:
+      features: ["age", "gender", "race", "emotion"]
+      embedding_models: ["DeepID"]
+      similarity_thresholds: [0.1]
+      weightage: [1]
+
+  debug_loose:
+    extraction:
+      features: ["age", "gender", "race", "emotion"]
+      embedding_models: ["Facenet512"]
+      similarity_thresholds: [-200]
+      weightage: [1]
