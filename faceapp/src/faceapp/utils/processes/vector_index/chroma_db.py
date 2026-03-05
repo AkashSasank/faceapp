@@ -9,7 +9,6 @@ from chromadb import Documents, EmbeddingFunction, Embeddings
 
 from faceapp._base.base import ProcessOutput
 from faceapp._base.indexer import Indexer
-from faceapp.utils.processes.process_outputs import ChromaLoadOutput
 
 
 class ChromadbVectorStore(Indexer):
@@ -83,7 +82,7 @@ class ChromadbVectorStore(Indexer):
                 index_config=index_config,
             )
 
-        return ChromaLoadOutput(documents=123)
+        return ProcessOutput(documents=123)
 
     def add_data(
         self,

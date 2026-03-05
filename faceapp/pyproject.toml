@@ -7,18 +7,28 @@ requires-python = ">=3.9"
 dependencies = [
     "azure-search-documents==11.6.0b12",
     "boto3>=1.40.32",
+    "fastapi>=0.116.0",
     "deepface>=0.0.95",
     "tf-keras>=2.20.1",
     "pydantic>=2.11.0",
     "chromadb==1.2.2",
+    "qdrant-client>=1.11.0",
+    "python-multipart>=0.0.9",
     "ulid==1.1",
+    "uvicorn>=0.35.0",
     "python-magic==0.4.27",
     "libmagic>=1.0",
 ]
 
+[project.scripts]
+faceapp = "faceapp_services.manager:main"
+
 [build-system]
 requires = ["uv_build>=0.8.16,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["faceapp", "faceapp_services"]
 
 [tool.uv.workspace]
 members = [

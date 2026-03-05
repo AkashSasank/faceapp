@@ -8,6 +8,7 @@ from faceapp.utils.processes.fetcher import LocalImageFetcher, S3ImageFetcher
 from faceapp.utils.processes.metadata import ExtractionFormatter
 from faceapp.utils.processes.vector_index.azure_aisearch import AzureAISearchVectorStore
 from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
+from faceapp.utils.processes.vector_index.qdrant import QdrantVectorStore
 
 
 class LocalImageExtractionPipeline(Pipeline):
@@ -113,3 +114,17 @@ class ChromadbIndexingPipeline(Pipeline):
         }
 
         super(ChromadbIndexingPipeline, self).__init__(processes, name)
+
+
+class QdrantIndexingPipeline(Pipeline):
+    """
+    Pipeline to format face extractions and upload them to Qdrant
+    """
+
+    def __init__(self, name: str = "QdrantIndexingPipeline"):
+        processes = {
+            "formatter": ExtractionFormatter(),
+            "vector_index": QdrantVectorStore(),
+        }
+
+        super(QdrantIndexingPipeline, self).__init__(processes, name)

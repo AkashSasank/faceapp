@@ -34,3 +34,7 @@ class ChromaLoadOutput(ProcessOutput):
 class AzureIndexLoadOutput(ProcessOutput):
     documents: list[dict[str, Any]] = Field(default_factory=list)
     blob_name: Optional[str] = None
+
+
+class QdrantLoadOutput(ProcessOutput):
+    documents: dict[str, int] = Field(default_factory=dict)
