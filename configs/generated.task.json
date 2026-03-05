@@ -1,0 +1,21 @@
+[
+  {
+    "id": "01KJZ0WWECW4KFHWNPQHPSP28T",
+    "type": "extract.unit",
+    "payload": {
+      "embedding_models": [
+        "Facenet512"
+      ],
+      "features": [
+        "age",
+        "gender",
+        "race",
+        "emotion"
+      ],
+      "face_detector": "mtcnn",
+      "project_id": null,
+      "path": "../dataset/raw/sample.jpg"
+    },
+    "source": "cli"
+  }
+]

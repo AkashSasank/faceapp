@@ -1,0 +1,14 @@
+[
+  {
+    "id": "local-task-001",
+    "type": "extract.unit",
+    "payload": {
+      "path": "./dataset/raw/sample.jpg",
+      "embedding_models": ["Facenet512"],
+      "features": ["age", "gender", "race", "emotion"],
+      "face_detector": "mtcnn",
+      "project_id": "foo"
+    },
+    "source": "local"
+  }
+]
