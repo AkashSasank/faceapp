@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 
 from faceapp.utils.processes.vector_index.chroma_db import ChromadbVectorStore
 from faceapp.utils.search import FaceSearch
-from utils import load_config
+from utils import load_project_config
 
 PROJECT_NAME = "test"
-CONFIG_FILE_NAME = "chroma.yaml"
-config = load_config(f"./configs/{CONFIG_FILE_NAME}", PROJECT_NAME)
+CONFIG_DIR = "./configs"
+config = load_project_config(CONFIG_DIR, PROJECT_NAME)
 load_dotenv(config.get("dotenv_path"))
 
 
