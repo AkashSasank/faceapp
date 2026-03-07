@@ -17,14 +17,6 @@ faceapp_services.manager
    :undoc-members:
    :show-inheritance:
 
-faceapp_services.api.main
--------------------------
-
-.. automodule:: faceapp_services.api.main
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 faceapp_services.workers
 ------------------------
 
@@ -57,26 +49,10 @@ faceapp_services.workers.extraction
    :undoc-members:
    :show-inheritance:
 
-faceapp_services.workers.local_runner
--------------------------------------
-
-.. automodule:: faceapp_services.workers.local_runner
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 faceapp_services.workers.multiprocess_runner
 --------------------------------------------
 
 .. automodule:: faceapp_services.workers.multiprocess_runner
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-faceapp_services.workers.queue
-------------------------------
-
-.. automodule:: faceapp_services.workers.queue
    :members:
    :undoc-members:
    :show-inheritance:

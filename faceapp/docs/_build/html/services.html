@@ -37,52 +37,10 @@
 <h1>Service layer<a class="headerlink" href="#service-layer" title="Link to this heading">¶</a></h1>
 <section id="module-faceapp_services">
 <span id="faceapp-services-package"></span><h2>faceapp_services package<a class="headerlink" href="#module-faceapp_services" title="Link to this heading">¶</a></h2>
-<p>Service-layer package for CLI, API, and worker orchestration.</p>
+<p>Service-layer package for ingestion and search CLI workflows.</p>
 </section>
 <section id="module-faceapp_services.manager">
 <span id="faceapp-services-manager"></span><h2>faceapp_services.manager<a class="headerlink" href="#module-faceapp_services.manager" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.manager.runworkers_command">
-<span class="sig-prename descclassname"><span class="pre">faceapp_services.manager.</span></span><span class="sig-name descname"><span class="pre">runworkers_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.manager.runworkers_command" title="Link to this definition">¶</a></dt>
-<dd><p>Run worker tasks once or in watch mode and print JSON results.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>Namespace</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.manager.runserver_command">
-<span class="sig-prename descclassname"><span class="pre">faceapp_services.manager.</span></span><span class="sig-name descname"><span class="pre">runserver_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.manager.runserver_command" title="Link to this definition">¶</a></dt>
-<dd><p>Start the FastAPI application with uvicorn.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>Namespace</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.manager.runall_command">
-<span class="sig-prename descclassname"><span class="pre">faceapp_services.manager.</span></span><span class="sig-name descname"><span class="pre">runall_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.manager.runall_command" title="Link to this definition">¶</a></dt>
-<dd><p>Start API server and workers concurrently as separate processes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>Namespace</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="faceapp_services.manager.ingest_command">
 <span class="sig-prename descclassname"><span class="pre">faceapp_services.manager.</span></span><span class="sig-name descname"><span class="pre">ingest_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.manager.ingest_command" title="Link to this definition">¶</a></dt>
@@ -123,65 +81,10 @@
 </dd></dl>
 
 </section>
-<section id="module-faceapp_services.api.main">
-<span id="faceapp-services-api-main"></span><h2>faceapp_services.api.main<a class="headerlink" href="#module-faceapp_services.api.main" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.api.main.health">
-<span class="sig-prename descclassname"><span class="pre">faceapp_services.api.main.</span></span><span class="sig-name descname"><span class="pre">health</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.api.main.health" title="Link to this definition">¶</a></dt>
-<dd><p>Simple health endpoint for local service checks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.api.main.extract_image">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.api.main.</span></span><span class="sig-name descname"><span class="pre">extract_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_detector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.api.main.extract_image" title="Link to this definition">¶</a></dt>
-<dd><p>Upload one image and run the unit extraction worker task.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>fastapi.UploadFile</em>)</p></li>
-<li><p><strong>embedding_models</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>face_detector</strong> (<em>str</em>)</p></li>
-<li><p><strong>project_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#faceapp_services.workers.contracts.WorkerResult" title="faceapp_services.workers.contracts.WorkerResult"><em>WorkerResult</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.api.main.extract_folder">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.api.main.</span></span><span class="sig-name descname"><span class="pre">extract_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_detector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">fastapi.Form</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.api.main.extract_folder" title="Link to this definition">¶</a></dt>
-<dd><p>Upload many images and run the batch extraction worker task.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>files</strong> (<em>List</em><em>[</em><em>fastapi.UploadFile</em><em>]</em>)</p></li>
-<li><p><strong>embedding_models</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>features</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>)</p></li>
-<li><p><strong>face_detector</strong> (<em>str</em>)</p></li>
-<li><p><strong>project_id</strong> (<em>str</em><em> | </em><em>None</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#faceapp_services.workers.contracts.WorkerResult" title="faceapp_services.workers.contracts.WorkerResult"><em>WorkerResult</em></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-faceapp_services.workers">
 <span id="faceapp-services-workers"></span><h2>faceapp_services.workers<a class="headerlink" href="#module-faceapp_services.workers" title="Link to this heading">¶</a></h2>
 <p>Worker package public exports.</p>
-<p>This package provides task contracts, dispatching, and a local in-memory
-worker runner that mimics serverless invocation style.</p>
+<p>This package provides task contracts and dispatching/execution runtimes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="faceapp_services.workers.TaskEnvelope">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.workers.</span></span><span class="sig-name descname"><span class="pre">TaskEnvelope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.TaskEnvelope" title="Link to this definition">¶</a></dt>
@@ -568,78 +471,6 @@ worker runner that mimics serverless invocation style.</p>
 </dd></dl>
 
 </section>
-<section id="module-faceapp_services.workers.local_runner">
-<span id="faceapp-services-workers-local-runner"></span><h2>faceapp_services.workers.local_runner<a class="headerlink" href="#module-faceapp_services.workers.local_runner" title="Link to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.workers.local_runner.</span></span><span class="sig-name descname"><span class="pre">LocalServerlessWorker</span></span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>In-memory worker runner that mimics serverless invocation:
-one task envelope in, one result out.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker.enqueue">
-<span class="sig-name descname"><span class="pre">enqueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker.enqueue" title="Link to this definition">¶</a></dt>
-<dd><p>Push one task envelope into the worker queue.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker.enqueue_many">
-<span class="sig-name descname"><span class="pre">enqueue_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker.enqueue_many" title="Link to this definition">¶</a></dt>
-<dd><p>Push multiple task envelopes into the worker queue.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>tasks</strong> (<em>Iterable</em><em>[</em><a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a><em>]</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker.run_once">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker.run_once" title="Link to this definition">¶</a></dt>
-<dd><p>Process a single queued task and return its result.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#faceapp_services.workers.contracts.WorkerResult" title="faceapp_services.workers.contracts.WorkerResult"><em>WorkerResult</em></a> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker.run_all">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker.run_all" title="Link to this definition">¶</a></dt>
-<dd><p>Process all queued tasks until the queue is empty.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="#faceapp_services.workers.contracts.WorkerResult" title="faceapp_services.workers.contracts.WorkerResult"><em>WorkerResult</em></a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.local_runner.LocalServerlessWorker.run_all_sync">
-<span class="sig-name descname"><span class="pre">run_all_sync</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.local_runner.LocalServerlessWorker.run_all_sync" title="Link to this definition">¶</a></dt>
-<dd><p>Synchronous wrapper around <cite>run_all</cite> for CLI/local scripts.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List</em>[<a class="reference internal" href="#faceapp_services.workers.contracts.WorkerResult" title="faceapp_services.workers.contracts.WorkerResult"><em>WorkerResult</em></a>]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-faceapp_services.workers.multiprocess_runner">
 <span id="faceapp-services-workers-multiprocess-runner"></span><h2>faceapp_services.workers.multiprocess_runner<a class="headerlink" href="#module-faceapp_services.workers.multiprocess_runner" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -667,103 +498,6 @@ one task envelope in, one result out.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-</section>
-<section id="module-faceapp_services.workers.queue">
-<span id="faceapp-services-workers-queue"></span><h2>faceapp_services.workers.queue<a class="headerlink" href="#module-faceapp_services.workers.queue" title="Link to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.TaskQueue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.workers.queue.</span></span><span class="sig-name descname"><span class="pre">TaskQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.TaskQueue" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
-<p>Queue interface for enqueue/dequeue operations.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.TaskQueue.enqueue">
-<span class="sig-name descname"><span class="pre">enqueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.TaskQueue.enqueue" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.TaskQueue.dequeue">
-<span class="sig-name descname"><span class="pre">dequeue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.TaskQueue.dequeue" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout_seconds</strong> (<em>int</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.RedisTaskQueue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">faceapp_services.workers.queue.</span></span><span class="sig-name descname"><span class="pre">RedisTaskQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'faceapp:tasks'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.RedisTaskQueue" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Redis list-backed queue implementation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>queue_name</strong> (<em>str</em>)</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.RedisTaskQueue.enqueue">
-<span class="sig-name descname"><span class="pre">enqueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.RedisTaskQueue.enqueue" title="Link to this definition">¶</a></dt>
-<dd><p>Push one task envelope to the queue.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.RedisTaskQueue.dequeue">
-<span class="sig-name descname"><span class="pre">dequeue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout_seconds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.RedisTaskQueue.dequeue" title="Link to this definition">¶</a></dt>
-<dd><p>Pop one task envelope from the queue, blocking for timeout.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timeout_seconds</strong> (<em>int</em>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#faceapp_services.workers.contracts.TaskEnvelope" title="faceapp_services.workers.contracts.TaskEnvelope"><em>TaskEnvelope</em></a> | None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="faceapp_services.workers.queue.build_task_queue">
-<span class="sig-prename descclassname"><span class="pre">faceapp_services.workers.queue.</span></span><span class="sig-name descname"><span class="pre">build_task_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#faceapp_services.workers.queue.build_task_queue" title="Link to this definition">¶</a></dt>
-<dd><p>Build a queue instance for the selected backend.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>backend</strong> (<em>str</em>)</p></li>
-<li><p><strong>url</strong> (<em>str</em>)</p></li>
-<li><p><strong>queue_name</strong> (<em>str</em>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#faceapp_services.workers.queue.TaskQueue" title="faceapp_services.workers.queue.TaskQueue"><em>TaskQueue</em></a></p>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -966,14 +700,11 @@ one task envelope in, one result out.</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Service layer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services">faceapp_services package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.manager">faceapp_services.manager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.api.main">faceapp_services.api.main</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers">faceapp_services.workers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.contracts">faceapp_services.workers.contracts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.dispatcher">faceapp_services.workers.dispatcher</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.extraction">faceapp_services.workers.extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.local_runner">faceapp_services.workers.local_runner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.multiprocess_runner">faceapp_services.workers.multiprocess_runner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.queue">faceapp_services.workers.queue</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.result_store">faceapp_services.workers.result_store</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-faceapp_services.workers.strategies">faceapp_services.workers.strategies</a></li>
 </ul>

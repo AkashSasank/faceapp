@@ -42,17 +42,14 @@ autodoc_mock_imports = [
     "chromadb",
     "cv2",
     "deepface",
-    "fastapi",
     "magic",
     "numpy",
     "pandas",
     "qdrant_client",
-    "redis",
     "tensorflow",
     "tf_keras",
     "torch",
     "ulid",
-    "uvicorn",
     "yaml",
 ]
 
