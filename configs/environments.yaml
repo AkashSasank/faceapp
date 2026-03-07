@@ -1,0 +1,19 @@
+defaults:
+  variables:
+    QDRANT_URL: "http://localhost:6333"
+
+foo:
+  variables:
+    QDRANT_URL: "http://localhost:6333"
+
+bar:
+  variables:
+    QDRANT_URL: "http://localhost:6333"
+
+test:
+  variables:
+    QDRANT_URL: "http://localhost:6333"
+
+multi_embed_demo:
+  variables:
+    QDRANT_URL: "http://localhost:6333"

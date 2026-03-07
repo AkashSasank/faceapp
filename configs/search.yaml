@@ -1,0 +1,19 @@
+defaults:
+  profile: "default"
+
+profiles:
+  default:
+    extraction_profile: "default"
+    thresholds: [0.75]
+    top_k: null
+
+  multi_embedding_default:
+    extraction_profile: "multi_embedding_balanced"
+    thresholds: [0.97]
+    top_k: null
+
+  facenet_strict:
+    extraction_profile: "default"
+    embedding_models: ["Facenet512"]
+    thresholds: [0.8]
+    top_k: 50

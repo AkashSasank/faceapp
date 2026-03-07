@@ -1,37 +1,38 @@
 foo:
   project_id: "hgjg3366645j12gj"
-  files:
-    input_path: ["./dataset/raw"]
-    output_path: ["./dataset/processed"]
-    failed_path: ["./dataset/retry"]
   config_refs:
+    env_config_key: "foo"
     extraction_profile: "default"
+    search_profile: "default"
     indexing:
       vector_db: "qdrant"
       profile: "qdrant_high_recall"
-  dotenv_path:
 
 bar:
   project_id: "hvjassjsajgjg12jg12gj12gj"
-  files:
-    input_path: ["./dataset/raw"]
-    output_path:
-    failed_path:
   config_refs:
+    env_config_key: "bar"
     extraction_profile: "default"
+    search_profile: "default"
     indexing:
       vector_db: "chroma"
       profile: "chroma_default"
-  dotenv_path:
 
 test:
   project_id: "thisisatestproj"
-  files:
-    input_path: ["./dataset/raw"]
-    output_path:
-    failed_path:
   config_refs:
+    env_config_key: "test"
     extraction_profile: "default"
+    search_profile: "default"
     indexing:
       vector_db: "qdrant"
-  dotenv_path:
+
+multi_embed_demo:
+  project_id: "multimodelproj001"
+  config_refs:
+    env_config_key: "multi_embed_demo"
+    extraction_profile: "multi_embedding_balanced"
+    search_profile: "multi_embedding_default"
+    indexing:
+      vector_db: "qdrant"
+      profile: "qdrant_high_recall"
