@@ -1,52 +1,4 @@
 services:
-  api:
-    build:
-      context: ./faceapp
-      dockerfile: Dockerfile
-    container_name: faceapp-api
-    restart: unless-stopped
-    depends_on:
-      - redis
-    environment:
-      - TASK_QUEUE_BACKEND=redis
-      - REDIS_URL=redis://redis:6379/0
-      - TASK_QUEUE_NAME=faceapp:tasks
-      - FACEAPP_SHARED_DIR=/shared
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./configs:/app/configs:ro
-      - shared_data:/shared
-    command: ["faceapp", "runserver", "--host", "0.0.0.0", "--port", "8000"]
-
-  worker:
-    build:
-      context: ./faceapp
-      dockerfile: Dockerfile
-    container_name: faceapp-worker
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - qdrant
-    environment:
-      - FACEAPP_CONFIG_DIR=/app/configs
-      - FACEAPP_SHARED_DIR=/shared
-      - TASK_QUEUE_BACKEND=redis
-      - REDIS_URL=redis://redis:6379/0
-      - TASK_QUEUE_NAME=faceapp:tasks
-      - QDRANT_URL=http://qdrant:6333
-    volumes:
-      - ./configs:/app/configs:ro
-      - shared_data:/shared
-    command: ["faceapp", "runworkers", "--source", "queue", "--workers", "3"]
-
-  redis:
-    image: redis:7-alpine
-    container_name: faceapp-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant
@@ -61,11 +13,7 @@ services:
       - qdrant_snapshots:/qdrant/snapshots
 
 volumes:
-  shared_data:
-    driver: local
   qdrant_storage:
     driver: local
   qdrant_snapshots:
-    driver: local
-  es_data:
     driver: local

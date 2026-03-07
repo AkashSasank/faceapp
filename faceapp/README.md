@@ -3,7 +3,7 @@
 FaceApp is a Python package for:
 - face extraction and embedding generation from local images
 - vector indexing in Qdrant
-- queue-based local scaling (API producer + worker consumers)
+- CLI-based ingestion and search workflows
 
 The package exposes a CLI command: `faceapp`.
 
@@ -11,16 +11,9 @@ The package exposes a CLI command: `faceapp`.
 
 ## Architecture
 
-- **API service**: accepts uploads and enqueues tasks
-- **Worker service/processes**: consumes tasks and runs extraction + indexing
-- **Queue**: pluggable queue interface (Redis backend configured by default)
+- **CLI**: runs ingest and search commands
+- **Processing runtime**: extraction + indexing pipeline
 - **Vector DB**: Qdrant
-
-In Docker Compose, this is split into containers:
-- `api`
-- `worker`
-- `redis`
-- `qdrant`
 
 ---
 
@@ -29,11 +22,8 @@ In Docker Compose, this is split into containers:
 ### Python dependencies
 
 Defined in `pyproject.toml` (installed with the package), including:
-- `fastapi`, `uvicorn`
 - `qdrant-client`
-- `redis`
 - `pydantic`
-- `python-multipart`
 - DeepFace stack (`deepface`, `tf-keras`)
 - `python-magic`
 
@@ -98,13 +88,9 @@ Primary config files (repo root):
 - `configs/projects.yaml`
 - `configs/extraction.yaml`
 - `configs/indexing.yaml`
+- `configs/search.yaml`
 
 ### Environment variables
-
-Queue:
-- `TASK_QUEUE_BACKEND` (default: `redis`)
-- `REDIS_URL` (default: `redis://localhost:6379/0`)
-- `TASK_QUEUE_NAME` (default: `faceapp:tasks`)
 
 Qdrant:
 - `QDRANT_URL` (example: `http://qdrant:6333`)
@@ -113,37 +99,13 @@ Qdrant:
 
 Filesystem:
 - `FACEAPP_SHARED_DIR` (default: `/shared`)
-- `FACEAPP_CONFIG_DIR` (for worker config lookup)
+- `FACEAPP_CONFIG_DIR` (for config lookup)
 
 ---
 
 ## CLI Commands
 
-### Core runtime
-
-Start API:
-```bash
-faceapp runserver --host 0.0.0.0 --port 8000
-```
-
-Start worker consumers:
-```bash
-faceapp runworkers --source queue --workers 3
-```
-
-Run API + workers together:
-```bash
-faceapp runall --host 0.0.0.0 --port 8000 --source queue --workers 3
-```
-
-Grouped aliases are also available:
-```bash
-faceapp run server ...
-faceapp run workers ...
-faceapp run all ...
-```
-
-### Ingest interface (simplified)
+### Ingest interface
 
 Immediate single-file ingest:
 ```bash
@@ -155,7 +117,17 @@ Folder ingest loop (auto-continuous):
 faceapp ingest --folder ./dataset/raw --config-name foo --poll-interval 2
 ```
 
-### Search interface (simplified)
+Concurrent folder ingest:
+```bash
+faceapp ingest --folder ./dataset/raw --config-name foo --ingest-workers 4
+```
+
+Grouped alias:
+```bash
+faceapp run ingest --file ./dataset/raw/sample.jpg --config-name foo
+```
+
+### Search interface
 
 Immediate single-file search:
 ```bash
@@ -170,22 +142,23 @@ faceapp search --folder ./dataset/faces --config-name foo --poll-interval 2
 Optional search tuning:
 ```bash
 faceapp search \
-	--file ./dataset/faces/query.jpg \
-	--config-name foo \
-	--embedding-models Facenet512 \
-	--thresholds 0.4
+  --file ./dataset/faces/query.jpg \
+  --config-name foo \
+  --embedding-models Facenet512 \
+  --thresholds 0.4
 ```
 
----
-
-## Worker task file format (task-file mode)
-
-Sample file: `configs/worker_tasks.local.sample.json`
-
-Run worker in task-file mode:
+Grouped alias:
 ```bash
-faceapp runworkers --source task-file --task-file ./configs/worker_tasks.local.sample.json
+faceapp run search --file ./dataset/faces/query.jpg --config-name foo
 ```
+
+By default, `faceapp search` resolves model and threshold from
+`configs/search.yaml` using the project's `config_refs.search_profile`
+(or `config_refs.search.profile`), and can inherit models/thresholds from
+`configs/extraction.yaml` via `extraction_profile` in search profile.
+
+CLI flags `--embedding-models` and `--thresholds` override configured values.
 
 ---
 
@@ -194,12 +167,10 @@ faceapp runworkers --source task-file --task-file ./configs/worker_tasks.local.s
 From repo root:
 
 ```bash
-docker compose up --build
+docker compose up -d qdrant
 ```
 
-Services:
-- API: `http://localhost:8000`
-- Redis: `localhost:6379`
+Service:
 - Qdrant: `http://localhost:6333`
 
 Check status:
@@ -219,11 +190,7 @@ docker compose down
 ### `failed to find libmagic`
 Install system `libmagic` (see dependency section), then restart your environment.
 
-### Queue connection refused
-Ensure Redis is running and `REDIS_URL` is correct.
-
 ### No search matches
 - Verify data was ingested for the same `project_id`
 - Verify embedding model + threshold configuration
 - Verify Qdrant is reachable via `QDRANT_URL`
-

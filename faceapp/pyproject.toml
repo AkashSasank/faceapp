@@ -7,16 +7,12 @@ requires-python = ">=3.9"
 dependencies = [
     "azure-search-documents==11.6.0b12",
     "boto3>=1.40.32",
-    "fastapi>=0.116.0",
     "deepface>=0.0.95",
     "tf-keras>=2.20.1",
     "pydantic>=2.11.0",
-    "redis>=5.2.1",
     "chromadb==1.2.2",
     "qdrant-client>=1.11.0",
-    "python-multipart>=0.0.9",
     "ulid==1.1",
-    "uvicorn>=0.35.0",
     "python-magic==0.4.27",
     "libmagic>=1.0",
 ]

@@ -11,7 +11,9 @@ wheels/
 */dist
 .idea
 .env
+.DS_Store
 
 # Artifacts
 dataset/
 chroma/
+qdrant/
