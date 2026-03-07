@@ -6,6 +6,7 @@ from faceapp.utils.misc import is_valid_image
 from faceapp.utils.processes.extractor import FaceExtractor
 from faceapp.utils.processes.fetcher import LocalImageFetcher
 from faceapp.utils.processes.metadata import ExtractionFormatter
+from faceapp.utils.processes.vector_index.dedup import DeduplicatingIndexer
 from faceapp.utils.processes.vector_index.qdrant import QdrantVectorStore
 
 
@@ -66,12 +67,26 @@ class QdrantIndexingPipeline(Pipeline):
         qdrant_url = os.getenv("QDRANT_URL")
         qdrant_api_key = os.getenv("QDRANT_API_KEY")
         qdrant_path = os.getenv("QDRANT_PATH")
+        dedupe_env = (
+            os.getenv(
+                "FACEAPP_ENABLE_INDEX_DEDUPE",
+                "1",
+            )
+            .strip()
+            .lower()
+        )
+        dedupe_enabled = dedupe_env not in {"0", "false", "no"}
+
+        qdrant_store = QdrantVectorStore(
+            url=qdrant_url,
+            api_key=qdrant_api_key,
+            path=qdrant_path,
+        )
         processes = {
             "formatter": ExtractionFormatter(),
-            "vector_index": QdrantVectorStore(
-                url=qdrant_url,
-                api_key=qdrant_api_key,
-                path=qdrant_path,
+            "vector_index": DeduplicatingIndexer(
+                indexer=qdrant_store,
+                enabled=dedupe_enabled,
             ),
         }
 

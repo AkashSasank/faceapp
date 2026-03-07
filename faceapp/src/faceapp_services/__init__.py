@@ -1,1 +1,1 @@
-"""Service-layer package for CLI, API, and worker orchestration."""
+"""Service-layer package for ingestion and search CLI workflows."""

@@ -3,12 +3,36 @@ from __future__ import annotations
 """Qdrant-backed storage for worker execution results."""
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 import ulid
 from faceapp_services.workers.contracts import WorkerResult
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
+
+
+def _normalize_payload_value(value: Any) -> Any:
+    """Convert non-JSON-native values (e.g., numpy scalars) recursively."""
+    if isinstance(value, dict):
+        return {key: _normalize_payload_value(item) for key, item in value.items()}
+
+    if isinstance(value, (list, tuple)):
+        return [_normalize_payload_value(item) for item in value]
+
+    if hasattr(value, "item"):
+        try:
+            return value.item()
+        except (TypeError, ValueError):
+            pass
+
+    if hasattr(value, "tolist"):
+        try:
+            converted = value.tolist()
+            return _normalize_payload_value(converted)
+        except (TypeError, ValueError):
+            pass
+
+    return value
 
 
 class QdrantWorkerResultStore:
@@ -52,7 +76,7 @@ class QdrantWorkerResultStore:
         """Persist one worker result as a payload document in Qdrant."""
 
         point_id = str(ulid.ulid())
-        payload = result.model_dump()
+        payload = _normalize_payload_value(result.model_dump())
         payload["worker_id"] = worker_id
         payload["created_on"] = datetime.now().isoformat()
 

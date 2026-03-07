@@ -1,12 +1,17 @@
+import hashlib
 from collections import defaultdict
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+from uuid import uuid4
 
-import ulid
 from qdrant_client import QdrantClient
+from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.models import (
     Distance,
+    FieldCondition,
     Filter,
     HnswConfigDiff,
+    MatchValue,
     PointStruct,
     SearchParams,
     VectorParams,
@@ -17,6 +22,106 @@ from faceapp._base.indexer import Indexer
 from faceapp.utils.processes.process_outputs import QdrantLoadOutput
 
 
+def build_qdrant_client(
+    url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    path: Optional[str] = None,
+) -> QdrantClient:
+    resolved_url = url.strip() if isinstance(url, str) else None
+    resolved_path = path.strip() if isinstance(path, str) else None
+
+    if resolved_url:
+        return QdrantClient(url=resolved_url, api_key=api_key)
+    if resolved_path:
+        return QdrantClient(path=resolved_path)
+    return QdrantClient(path="./qdrant")
+
+
+def collection_name_for_model(project_id: Optional[str], model: str) -> str:
+    normalized_model = model.lower()
+    if project_id:
+        normalized_project = project_id.strip().replace(" ", "_")
+        return f"{normalized_project}_{normalized_model}"
+    return normalized_model
+
+
+def compute_file_sha256(file_path: str) -> str:
+    hasher = hashlib.sha256()
+    with open(file_path, "rb") as file_obj:
+        while True:
+            chunk = file_obj.read(8192)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def should_skip_file_before_embedding(
+    file_path: str,
+    project_id: Optional[str],
+    embedding_models: list[str],
+    url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    path: Optional[str] = None,
+) -> bool:
+    models_to_process = models_requiring_embedding(
+        file_path=file_path,
+        project_id=project_id,
+        embedding_models=embedding_models,
+        url=url,
+        api_key=api_key,
+        path=path,
+    )
+    return len(models_to_process) == 0
+
+
+def models_requiring_embedding(
+    file_path: str,
+    project_id: Optional[str],
+    embedding_models: list[str],
+    url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    path: Optional[str] = None,
+) -> list[str]:
+    if not embedding_models:
+        return []
+
+    target = Path(file_path)
+    if not target.is_file():
+        return list(embedding_models)
+
+    try:
+        image_hash = compute_file_sha256(file_path)
+        client = build_qdrant_client(url=url, api_key=api_key, path=path)
+        pending_models: list[str] = []
+
+        for model in embedding_models:
+            collection_name = collection_name_for_model(project_id, model)
+            if not client.collection_exists(collection_name=collection_name):
+                pending_models.append(model)
+                continue
+
+            points, _ = client.scroll(
+                collection_name=collection_name,
+                scroll_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="image_hash",
+                            match=MatchValue(value=image_hash),
+                        )
+                    ]
+                ),
+                limit=1,
+                with_payload=False,
+                with_vectors=False,
+            )
+            if not points:
+                pending_models.append(model)
+        return pending_models
+    except Exception:
+        return list(embedding_models)
+
+
 class QdrantVectorStore(Indexer):
     def __init__(
         self,
@@ -24,12 +129,11 @@ class QdrantVectorStore(Indexer):
         api_key: Optional[str] = None,
         path: Optional[str] = None,
     ):
-        if url:
-            self.index_client = QdrantClient(url=url, api_key=api_key)
-        elif path:
-            self.index_client = QdrantClient(path=path)
-        else:
-            self.index_client = QdrantClient(path="./qdrant")
+        self.index_client = build_qdrant_client(
+            url=url,
+            api_key=api_key,
+            path=path,
+        )
 
     def _create_index(
         self,
@@ -77,7 +181,7 @@ class QdrantVectorStore(Indexer):
             index_name = payload.pop("index_name")
             grouped[index_name]["embeddings"].append(embeddings[index])
             grouped[index_name]["metadata"].append(payload)
-            grouped[index_name]["ids"].append(str(ulid.ulid()))
+            grouped[index_name]["ids"].append(str(uuid4()))
 
         documents_by_index: dict[str, int] = {}
         for index_name, data in grouped.items():
@@ -123,15 +227,52 @@ class QdrantVectorStore(Indexer):
         self.index_client.upsert(collection_name=index_name, points=points)
         return len(points)
 
+    def existing_dedupe_hashes(
+        self,
+        index_name: str,
+        dedupe_hashes: set[str],
+    ) -> set[str]:
+        if not dedupe_hashes:
+            return set()
+
+        if not self.index_client.collection_exists(collection_name=index_name):
+            return set()
+
+        existing_hashes: set[str] = set()
+        for dedupe_hash in dedupe_hashes:
+            points, _ = self.index_client.scroll(
+                collection_name=index_name,
+                scroll_filter=Filter(
+                    must=[
+                        FieldCondition(
+                            key="dedupe_hash",
+                            match=MatchValue(value=dedupe_hash),
+                        )
+                    ]
+                ),
+                limit=1,
+                with_payload=False,
+                with_vectors=False,
+            )
+            if points:
+                existing_hashes.add(dedupe_hash)
+
+        return existing_hashes
+
     async def search(
         self,
         index_name: str,
-        query_embedding: List[float] | List[List[float]],
+        query_embedding: Union[List[float], List[List[float]]],
         k: Optional[int] = None,
         filters: Optional[Filter] = None,
         threshold: Optional[float] = None,
         config: Optional[dict] = None,
     ) -> List[Dict[str, Any]]:
+        if not self.index_client.collection_exists(collection_name=index_name):
+            return []
+
+        resolved_limit = self._resolve_query_limit(index_name=index_name, k=k)
+
         query_embeddings = self._normalize_query_embeddings(query_embedding)
         merged_by_id: dict[str, Dict[str, Any]] = {}
         search_cfg = (config or {}).get("search", {})
@@ -141,30 +282,60 @@ class QdrantVectorStore(Indexer):
         )
 
         for vector in query_embeddings:
-            response = self.index_client.query_points(
-                collection_name=index_name,
-                query=vector,
-                query_filter=filters,
-                limit=k or 50,
-                search_params=search_params,
-                with_payload=True,
-                with_vectors=False,
-                score_threshold=threshold,
-            )
+            try:
+                response = self.index_client.query_points(
+                    collection_name=index_name,
+                    query=vector,
+                    query_filter=filters,
+                    limit=resolved_limit,
+                    search_params=search_params,
+                    with_payload=True,
+                    with_vectors=True,
+                    score_threshold=threshold,
+                )
+            except UnexpectedResponse as error:
+                if "doesn't exist" in str(error):
+                    return []
+                raise
             for point in response.points:
                 payload = dict(point.payload or {})
                 payload["_score"] = point.score
                 payload["_id"] = str(point.id)
 
                 existing = merged_by_id.get(payload["_id"])
-                if existing is None or payload["_score"] > existing.get("_score", -1.0):
+                if existing is None or payload["_score"] > existing.get(
+                    "_score",
+                    -1.0,
+                ):
                     merged_by_id[payload["_id"]] = payload
 
         return list(merged_by_id.values())
 
+    def _resolve_query_limit(
+        self,
+        index_name: str,
+        k: Optional[int],
+    ) -> int:
+        if isinstance(k, int) and k > 0:
+            return k
+
+        try:
+            collection = self.index_client.get_collection(index_name)
+            points_count = collection.points_count
+            if isinstance(points_count, int) and points_count > 0:
+                return points_count
+
+            vectors_count = getattr(collection, "vectors_count", None)
+            if isinstance(vectors_count, int) and vectors_count > 0:
+                return vectors_count
+        except Exception:
+            pass
+
+        return 1_000_000
+
     @staticmethod
     def _normalize_query_embeddings(
-        query_embedding: List[float] | List[List[float]],
+        query_embedding: Union[List[float], List[List[float]]],
     ) -> List[List[float]]:
         if not query_embedding:
             return []

@@ -9,10 +9,34 @@ local dispatcher, and returns normalized task results.
 import asyncio
 import multiprocessing as mp
 from queue import Empty
-from typing import Iterable
+from typing import Any, Iterable
 
 from faceapp_services.workers.contracts import TaskEnvelope, WorkerResult
 from faceapp_services.workers.dispatcher import WorkerDispatcher
+
+
+def _normalize_queue_value(value: Any) -> Any:
+    """Convert non-primitive values recursively for process-safe payloads."""
+    if isinstance(value, dict):
+        return {key: _normalize_queue_value(item) for key, item in value.items()}
+
+    if isinstance(value, (list, tuple)):
+        return [_normalize_queue_value(item) for item in value]
+
+    if hasattr(value, "item"):
+        try:
+            return value.item()
+        except (TypeError, ValueError):
+            pass
+
+    if hasattr(value, "tolist"):
+        try:
+            converted = value.tolist()
+            return _normalize_queue_value(converted)
+        except (TypeError, ValueError):
+            pass
+
+    return value
 
 
 def _worker_loop(
@@ -30,7 +54,7 @@ def _worker_loop(
 
         task = TaskEnvelope.model_validate(task_data)
         result = asyncio.run(dispatcher.dispatch(task))
-        result_queue.put(result.model_dump())
+        result_queue.put(_normalize_queue_value(result.model_dump()))
 
 
 class MultiprocessQdrantWorkerRunner:
@@ -56,7 +80,7 @@ class MultiprocessQdrantWorkerRunner:
 
         task_list = list(tasks)
         for task in task_list:
-            task_queue.put(task.model_dump())
+            task_queue.put(_normalize_queue_value(task.model_dump()))
 
         processes: list = []
         for index in range(self.num_workers):

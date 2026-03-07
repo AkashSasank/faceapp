@@ -1,15 +1,30 @@
+import hashlib
+import json
 from datetime import datetime
-
-import ulid
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 from faceapp._base.base import Process, ProcessOutput
-from faceapp.utils.processes.process_outputs import ImageMetadataOutput, MetadataFormattingOutput
+from faceapp.utils.processes.process_outputs import (
+    ImageMetadataOutput,
+    MetadataFormattingOutput,
+)
 
 
 class ExtractionFormatter(Process):
 
     def create_metadata(self, extractions: list, project_id: str = None):
-        formatted_data = list(map(lambda x: self.__format(x, project_id), extractions))
+        image_hash_cache: dict[str, str] = {}
+        formatted_data = list(
+            map(
+                lambda x: self.__format(
+                    x,
+                    project_id,
+                    image_hash_cache,
+                ),
+                extractions,
+            )
+        )
         num_embedding_models = len(
             list({i[1].get("embedding_model", 1) for i in formatted_data})
         )
@@ -26,12 +41,28 @@ class ExtractionFormatter(Process):
             metadata.append(meta)
         return embeddings, metadata
 
-    def __format(self, extraction: dict, project_id: str = None):
+    def __format(
+        self,
+        extraction: dict,
+        project_id: str = None,
+        image_hash_cache: Optional[Dict[str, str]] = None,
+    ):
         if project_id:
             project_id = project_id.strip().replace(" ", "_")
-            index_name = f"{project_id}_{extraction.get('embedding_model').lower()}"
+            embedding_model = extraction.get("embedding_model").lower()
+            index_name = f"{project_id}_{embedding_model}"
         else:
             index_name = extraction.get("embedding_model").lower()
+
+        image_hash = self._compute_image_hash(
+            blob_name=extraction.get("blob_name"),
+            image_hash_cache=image_hash_cache,
+        )
+        dedupe_hash = self._compute_dedupe_hash(
+            extraction=extraction,
+            image_hash=image_hash,
+        )
+
         face_keys = [
             "facial_area",
             "face_confidence",
@@ -71,15 +102,64 @@ class ExtractionFormatter(Process):
                 "created_on": datetime.now().isoformat(),
                 "updated_on": datetime.now().isoformat(),
                 "index_name": index_name,
+                "image_hash": image_hash,
+                "dedupe_hash": dedupe_hash,
             }
             | face,
         )
+
+    @staticmethod
+    def _compute_image_hash(
+        blob_name: Any,
+        image_hash_cache: Optional[Dict[str, str]] = None,
+    ) -> str:
+        blob_name_str = str(blob_name or "")
+        if image_hash_cache and blob_name_str in image_hash_cache:
+            return image_hash_cache[blob_name_str]
+
+        path = Path(blob_name_str)
+        hasher = hashlib.sha256()
+        if blob_name_str and path.is_file():
+            with path.open("rb") as file_obj:
+                while True:
+                    chunk = file_obj.read(8192)
+                    if not chunk:
+                        break
+                    hasher.update(chunk)
+        else:
+            hasher.update(blob_name_str.encode("utf-8"))
+
+        image_hash = hasher.hexdigest()
+        if image_hash_cache is not None:
+            image_hash_cache[blob_name_str] = image_hash
+        return image_hash
+
+    @staticmethod
+    def _compute_dedupe_hash(extraction: dict, image_hash: str) -> str:
+        metadata_fingerprint = {
+            "embedding_model": extraction.get("embedding_model"),
+            "detector": extraction.get("detector"),
+            "facial_area": extraction.get("facial_area"),
+        }
+        metadata_hash = hashlib.sha256(
+            json.dumps(
+                metadata_fingerprint,
+                sort_keys=True,
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+        return hashlib.sha256(
+            f"{image_hash}:{metadata_hash}".encode("utf-8")
+        ).hexdigest()
 
     async def ainvoke(
         self, extractions: list, project_id: str, *args, **kwargs
     ) -> ProcessOutput:
         embeddings, metadata = self.create_metadata(extractions, project_id)
-        return MetadataFormattingOutput(embeddings=embeddings, metadata=metadata)
+        return MetadataFormattingOutput(
+            embeddings=embeddings,
+            metadata=metadata,
+        )
 
 
 class ImageMetadataAggregator(Process):
