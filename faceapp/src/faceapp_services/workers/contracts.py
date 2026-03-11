@@ -25,6 +25,7 @@ class ExtractionBasePayload(BaseModel):
     features: List[str]
     face_detector: str = "mtcnn"
     project_id: Optional[str] = None
+    meta: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExtractionUnitPayload(ExtractionBasePayload):

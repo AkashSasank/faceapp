@@ -1,4 +1,7 @@
 import asyncio
+import os
+import threading
+from collections.abc import Callable
 from itertools import product
 from typing import List
 
@@ -8,19 +11,30 @@ from faceapp._base.base import ProcessOutput
 from faceapp._base.extractor import Extractor
 from faceapp.utils.processes.process_outputs import FaceExtractionOutput
 
+_DEEPFACE_CALL_LOCK = threading.RLock()
+
+
+def _resolve_extract_concurrency() -> int:
+    raw_value = os.getenv("FACEAPP_EXTRACT_CONCURRENCY", "1")
+    try:
+        return max(int(raw_value), 1)
+    except (TypeError, ValueError):
+        return 1
+
 
 class FaceAnalyser:
 
     @staticmethod
     def analyse(path, features: List, face_detector: str, align_face=True):
-        faces = DeepFace.analyze(
-            img_path=path,
-            actions=features,
-            align=align_face,
-            detector_backend=face_detector,
-            silent=True,
-            enforce_detection=False,
-        )
+        with _DEEPFACE_CALL_LOCK:
+            faces = DeepFace.analyze(
+                img_path=path,
+                actions=features,
+                align=align_face,
+                detector_backend=face_detector,
+                silent=True,
+                enforce_detection=False,
+            )
         return {"faces": faces, "features": features}
 
 
@@ -30,13 +44,14 @@ class FaceEmbedder:
     def represent_faces(
         path, face_detector: str, embedding_model: str, align_face=True
     ):
-        embedding_objs = DeepFace.represent(
-            img_path=path,
-            detector_backend=face_detector,
-            align=align_face,
-            model_name=embedding_model,
-            enforce_detection=False,
-        )
+        with _DEEPFACE_CALL_LOCK:
+            embedding_objs = DeepFace.represent(
+                img_path=path,
+                detector_backend=face_detector,
+                align=align_face,
+                model_name=embedding_model,
+                enforce_detection=False,
+            )
         return {
             "embedding_objs": embedding_objs,
             "embedding_model": embedding_model,
@@ -104,29 +119,28 @@ class FaceExtractor(Extractor):
         features = self.__validate_features(features)
         self.__validate_model(embedding_models)
         self.__validate_detector(face_detector)
-        threads = list()
-        threads.extend(
-            [
-                asyncio.to_thread(
-                    self.embedder.represent_faces,
+        jobs: list[Callable[[], dict]] = []
+        for model in embedding_models:
+            jobs.append(
+                lambda model_name=model: self.embedder.represent_faces(
                     path=path,
                     face_detector=face_detector,
                     align_face=False,
-                    embedding_model=model,
+                    embedding_model=model_name,
                 )
-                for model in embedding_models
-            ]
-        )
-        threads.append(
-            asyncio.to_thread(
-                self.analyser.analyse,
+            )
+        jobs.append(
+            lambda: self.analyser.analyse(
                 path=path,
                 face_detector=face_detector,
                 align_face=False,
                 features=features,
             )
         )
-        res = await asyncio.gather(*threads)
+        res = await self._run_jobs(
+            jobs=jobs,
+            max_parallel_calls=_resolve_extract_concurrency(),
+        )
         results = {
             "embeddings": res[0 : len(embedding_models)],
             "analysis": res[len(embedding_models) :],
@@ -135,6 +149,25 @@ class FaceExtractor(Extractor):
             "meta": meta,
         }
         return self.clean_extractions(results)
+
+    @staticmethod
+    async def _run_jobs(
+        jobs: list[Callable[[], dict]],
+        max_parallel_calls: int,
+    ) -> list[dict]:
+        if max_parallel_calls <= 1:
+            results: list[dict] = []
+            for job in jobs:
+                results.append(await asyncio.to_thread(job))
+            return results
+
+        semaphore = asyncio.Semaphore(max_parallel_calls)
+
+        async def _run(job: Callable[[], dict]) -> dict:
+            async with semaphore:
+                return await asyncio.to_thread(job)
+
+        return await asyncio.gather(*(_run(job) for job in jobs))
 
     def clean_extractions(
         self,
@@ -155,7 +188,10 @@ class FaceExtractor(Extractor):
         )
 
         iou = list(
-            map(self.__intersection_over_union, product(embedding_bb, analysis_bb))
+            map(
+                self.__intersection_over_union,
+                product(embedding_bb, analysis_bb),
+            )
         )
         indexes = list(
             product(

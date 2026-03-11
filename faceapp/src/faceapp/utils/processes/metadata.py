@@ -73,6 +73,7 @@ class ExtractionFormatter(Process):
             "detector",
             "embedding_model",
             "blob_name",
+            "meta",
         ]
         face = dict()
         for key in face_keys:

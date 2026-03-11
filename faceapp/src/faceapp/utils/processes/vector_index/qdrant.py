@@ -158,14 +158,19 @@ class QdrantVectorStore(Indexer):
             full_scan_threshold=hnsw_cfg.get("full_scan_threshold"),
         )
 
-        self.index_client.create_collection(
-            collection_name=index_name,
-            vectors_config=VectorParams(
-                size=embedding_size,
-                distance=distance,
-            ),
-            hnsw_config=hnsw_config,
-        )
+        try:
+            self.index_client.create_collection(
+                collection_name=index_name,
+                vectors_config=VectorParams(
+                    size=embedding_size,
+                    distance=distance,
+                ),
+                hnsw_config=hnsw_config,
+            )
+        except Exception:
+            if self.index_client.collection_exists(collection_name=index_name):
+                return
+            raise
 
     async def load(
         self,

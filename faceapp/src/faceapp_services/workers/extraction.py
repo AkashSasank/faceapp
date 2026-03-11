@@ -2,11 +2,17 @@ from __future__ import annotations
 
 """Extraction task handlers used by the worker dispatcher."""
 
+import gc
+import os
 from typing import AsyncGenerator
 
 from faceapp_services.workers.contracts import (
     ExtractionBatchPayload,
     ExtractionUnitPayload,
+)
+from faceapp_services.workers.runtime import (
+    compact_extraction_output,
+    get_process_memory_snapshot,
 )
 from faceapp_services.workers.strategies import WorkerStrategyResolver
 
@@ -29,23 +35,17 @@ class ExtractionTaskHandler:
         extraction_pipeline = strategies.extraction.build_pipeline()
         indexing_pipeline = strategies.indexing.build_pipeline()
 
-        result = await extraction_pipeline.ainvoke(
+        return await self._process_path(
             path=payload.path,
             embedding_models=payload.embedding_models,
             features=payload.features,
             face_detector=payload.face_detector,
-        )
-        extraction_output = await self._to_dict(result)
-        indexing_output = await self._index_extractions(
-            extraction_output=extraction_output,
-            indexing_pipeline=indexing_pipeline,
+            meta=payload.meta,
             project_id=payload.project_id,
+            extraction_pipeline=extraction_pipeline,
+            indexing_pipeline=indexing_pipeline,
             index_config=strategies.index_config,
         )
-        return {
-            "extraction": extraction_output,
-            "indexing": indexing_output,
-        }
 
     async def handle_batch(
         self,
@@ -61,26 +61,69 @@ class ExtractionTaskHandler:
 
         outputs: list[dict] = []
         for path in payload.paths:
-            result = await extraction_pipeline.ainvoke(
-                path=path,
-                embedding_models=payload.embedding_models,
-                features=payload.features,
-                face_detector=payload.face_detector,
-            )
-            extraction_output = await self._to_dict(result)
-            indexing_output = await self._index_extractions(
-                extraction_output=extraction_output,
-                indexing_pipeline=indexing_pipeline,
-                project_id=payload.project_id,
-                index_config=strategies.index_config,
-            )
             outputs.append(
-                {
-                    "extraction": extraction_output,
-                    "indexing": indexing_output,
-                }
+                await self._process_path(
+                    path=path,
+                    embedding_models=payload.embedding_models,
+                    features=payload.features,
+                    face_detector=payload.face_detector,
+                    meta=payload.meta,
+                    project_id=payload.project_id,
+                    extraction_pipeline=extraction_pipeline,
+                    indexing_pipeline=indexing_pipeline,
+                    index_config=strategies.index_config,
+                )
             )
         return outputs
+
+    async def _process_path(
+        self,
+        *,
+        path: str,
+        embedding_models: list[str],
+        features: list[str],
+        face_detector: str,
+        meta: dict,
+        project_id: str | None,
+        extraction_pipeline: Pipeline,
+        indexing_pipeline: Pipeline,
+        index_config: dict,
+    ) -> dict:
+        """Extract and index one path while keeping result payloads small."""
+
+        memory_before_extract = get_process_memory_snapshot()
+        result = await extraction_pipeline.ainvoke(
+            path=path,
+            embedding_models=embedding_models,
+            features=features,
+            face_detector=face_detector,
+            meta=meta,
+        )
+        extraction_output = await self._to_dict(result)
+        memory_after_extract = get_process_memory_snapshot()
+        indexing_output = await self._index_extractions(
+            extraction_output=extraction_output,
+            indexing_pipeline=indexing_pipeline,
+            project_id=project_id,
+            index_config=index_config,
+        )
+        compacted_extraction = compact_extraction_output(extraction_output)
+        del result
+        del extraction_output
+        gc.collect()
+
+        return {
+            "extraction": compacted_extraction,
+            "indexing": indexing_output,
+            "runtime": {
+                "worker_pid": os.getpid(),
+                "memory": {
+                    "before_extract": memory_before_extract,
+                    "after_extract": memory_after_extract,
+                    "after_index": get_process_memory_snapshot(),
+                },
+            },
+        }
 
     async def _index_extractions(
         self,

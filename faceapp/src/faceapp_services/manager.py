@@ -280,6 +280,7 @@ def _build_ingest_task(
     face_detector: str,
     project_id: str | None,
     source: str,
+    meta: dict[str, Any] | None = None,
 ):
     """Build one unit extraction task envelope from file path."""
 
@@ -295,6 +296,7 @@ def _build_ingest_task(
         features=features,
         face_detector=face_detector,
         project_id=project_id,
+        meta=meta or {},
     )
 
     return TaskEnvelope(
