@@ -25,6 +25,14 @@ faceapp.utils package
    :undoc-members:
    :show-inheritance:
 
+faceapp.interface
+-----------------
+
+.. automodule:: faceapp.interface
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 faceapp.utils.pipelines
 -----------------------
 

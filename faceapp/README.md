@@ -127,6 +127,11 @@ Grouped alias:
 faceapp run ingest --file ./dataset/raw/sample.jpg --config-name foo
 ```
 
+Ingest dedupe behavior (CLI and SDK):
+- Performs a pre-extraction dedupe check per file/model.
+- If all requested models are already indexed, ingestion is skipped before extraction.
+- If only some models are missing, only the missing models are extracted/indexed.
+
 ### Search interface
 
 Immediate single-file search:
@@ -162,6 +167,38 @@ CLI flags `--embedding-models` and `--thresholds` override configured values.
 
 ---
 
+## Programmatic Interface
+
+Use the simple SDK interface from Python:
+
+```python
+from faceapp.interface import FaceAppClient
+
+client = FaceAppClient()
+result = client.ingest(
+  file_path="./dataset/raw/sample.jpg",
+  project_id="multimodelproj001",
+  embedding_models=["Facenet512", "VGG-Face", "DeepID"],
+  features=["age", "gender"],
+  face_detector="mtcnn",
+)
+```
+
+Programmatic ingestion uses the same pre-extraction dedupe flow as CLI manager ingest:
+- runtime connection is resolved first,
+- pending models are computed,
+- duplicate files are skipped before extraction starts.
+
+Useful result fields:
+- `status`: `processed` or `skipped`
+- `processed_models` / `skipped_models`
+- `result.data.runtime.memory` for worker memory snapshots
+
+Runtime tuning:
+- `FACEAPP_EXTRACT_CONCURRENCY` (default `1`) limits in-process extraction concurrency.
+
+---
+
 ## Docker Compose Usage
 
 From repo root:
@@ -194,3 +231,7 @@ Install system `libmagic` (see dependency section), then restart your environmen
 - Verify data was ingested for the same `project_id`
 - Verify embedding model + threshold configuration
 - Verify Qdrant is reachable via `QDRANT_URL`
+
+### Ingestion is skipped unexpectedly
+- Check `skipped_models` from ingest result output.
+- Confirm you are using the intended `project_id` and Qdrant connection/profile.

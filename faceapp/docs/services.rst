@@ -57,6 +57,14 @@ faceapp_services.workers.multiprocess_runner
    :undoc-members:
    :show-inheritance:
 
+faceapp_services.workers.runtime
+--------------------------------
+
+.. automodule:: faceapp_services.workers.runtime
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 faceapp_services.workers.result_store
 -------------------------------------
 
